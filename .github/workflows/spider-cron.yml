@@ -1,0 +1,75 @@
+name: Robot Spider Cron
+
+on:
+  schedule:
+    - cron: '0 18 * * *'   # 每天 UTC 18:00 = 北京时间次日 02:00
+  workflow_dispatch:        # 支持手动触发
+
+jobs:
+  spider:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: lookforbest
+          MYSQL_USER: lookforbest
+          MYSQL_PASSWORD: lookforbest
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u lookforbest -plookforbest"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      minio:
+        image: minio/minio:latest
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        ports:
+          - 9000:9000
+        options: >-
+          --health-cmd="curl -f http://localhost:9000/minio/health/live"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 初始化数据库
+        run: |
+          mysql -h 127.0.0.1 -u lookforbest -plookforbest lookforbest < backend/src/main/resources/db/init.sql
+
+      - name: 安装 Python 依赖
+        run: |
+          cd scripts/spider
+          pip install -r requirements.txt
+
+      - name: 运行爬虫
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: lookforbest
+          DB_USER: lookforbest
+          DB_PASSWORD: lookforbest
+          MINIO_ENDPOINT: http://127.0.0.1:9000
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
+          MINIO_BUCKET: lookforbest
+          SPIDER_DELAY: 1.0
+        run: |
+          cd scripts/spider
+          python main.py
+
+      - name: 上传爬虫日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spider-log-${{ github.run_id }}
+          path: scripts/spider/*.log
+          retention-days: 7

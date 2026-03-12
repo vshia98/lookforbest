@@ -1,0 +1,11 @@
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==5.2.1
+selenium==4.21.0
+webdriver-manager==4.0.1
+Pillow==10.3.0
+PyMySQL==1.1.1
+python-dotenv==1.0.1
+minio==7.2.7
+schedule==1.2.2
+fake-useragent==1.5.1

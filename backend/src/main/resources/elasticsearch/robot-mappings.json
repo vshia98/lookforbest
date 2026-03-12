@@ -1,0 +1,60 @@
+{
+  "properties": {
+    "id": { "type": "keyword" },
+    "name": {
+      "type": "text",
+      "analyzer": "ik_max_word",
+      "search_analyzer": "ik_smart",
+      "fields": {
+        "keyword": { "type": "keyword", "ignore_above": 300 }
+      }
+    },
+    "nameEn": {
+      "type": "text",
+      "analyzer": "english",
+      "fields": {
+        "keyword": { "type": "keyword", "ignore_above": 300 }
+      }
+    },
+    "slug": { "type": "keyword" },
+    "description": {
+      "type": "text",
+      "analyzer": "ik_max_word",
+      "search_analyzer": "ik_smart"
+    },
+    "descriptionEn": {
+      "type": "text",
+      "analyzer": "english"
+    },
+    "modelNumber": { "type": "keyword" },
+    "categoryName": { "type": "keyword" },
+    "categoryId": { "type": "long" },
+    "manufacturerName": {
+      "type": "text",
+      "analyzer": "ik_max_word",
+      "search_analyzer": "ik_smart",
+      "fields": {
+        "keyword": { "type": "keyword", "ignore_above": 300 }
+      }
+    },
+    "manufacturerId": { "type": "long" },
+    "status": { "type": "keyword" },
+    "payloadKg": { "type": "double" },
+    "reachMm": { "type": "integer" },
+    "dof": { "type": "integer" },
+    "weightKg": { "type": "double" },
+    "priceRange": { "type": "keyword" },
+    "has3dModel": { "type": "boolean" },
+    "viewCount": { "type": "long" },
+    "favoriteCount": { "type": "integer" },
+    "isFeatured": { "type": "boolean" },
+    "coverImageUrl": { "type": "keyword", "index": false },
+    "updatedAt": { "type": "date", "format": "yyyy-MM-dd'T'HH:mm:ss" },
+    "suggest": {
+      "type": "completion",
+      "analyzer": "ik_max_word",
+      "search_analyzer": "ik_smart",
+      "max_input_length": 100
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "LookForBest",
+        "navigationBarBackgroundColor": "#6366F1",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/robots/list",
+      "style": {
+        "navigationBarTitleText": "机器人库",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/robots/detail",
+      "style": {
+        "navigationBarTitleText": "机器人详情",
+        "navigationBarBackgroundColor": "#000000",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/compare/index",
+      "style": {
+        "navigationBarTitleText": "机器人对比"
+      }
+    },
+    {
+      "path": "pages/auth/login",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/favorites/index",
+      "style": {
+        "navigationBarTitleText": "我的收藏",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/about/privacy",
+      "style": {
+        "navigationBarTitleText": "隐私政策"
+      }
+    },
+    {
+      "path": "pages/about/terms",
+      "style": {
+        "navigationBarTitleText": "用户协议"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#6366F1",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tab_home.png",
+        "selectedIconPath": "static/tab_home_active.png"
+      },
+      {
+        "pagePath": "pages/robots/list",
+        "text": "机器人",
+        "iconPath": "static/tab_robot.png",
+        "selectedIconPath": "static/tab_robot_active.png"
+      },
+      {
+        "pagePath": "pages/favorites/index",
+        "text": "收藏",
+        "iconPath": "static/tab_fav.png",
+        "selectedIconPath": "static/tab_fav_active.png"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "LookForBest",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f5f5"
+  }
+}

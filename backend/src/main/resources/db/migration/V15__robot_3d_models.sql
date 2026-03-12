@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS robot_3d_models (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    robot_id BIGINT NOT NULL UNIQUE,
+    model_url VARCHAR(500) COMMENT 'GLB/GLTF model file URL',
+    poster_url VARCHAR(500) COMMENT '预览图 URL',
+    ar_url VARCHAR(500) COMMENT 'USDZ for iOS AR',
+    title VARCHAR(200),
+    annotations JSON COMMENT '标注点 JSON',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_robot_id (robot_id)
+);

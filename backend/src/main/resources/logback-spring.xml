@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="lookforbest-backend"/>
+
+    <!-- ============================================================
+         开发环境：彩色控制台输出
+         ============================================================ -->
+    <springProfile name="dev,default">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5p) %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <logger name="com.lookforbest" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.springframework.cache" level="DEBUG"/>
+    </springProfile>
+
+    <!-- ============================================================
+         生产环境：JSON 结构化日志，便于日志采集和告警
+         ============================================================ -->
+    <springProfile name="prod">
+
+        <!-- 应用日志：JSON 格式写入文件 -->
+        <appender name="FILE_APP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>/var/log/lookforbest/app.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>/var/log/lookforbest/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>100MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>5GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"app":"${APP_NAME}","env":"prod"}</customFields>
+                <includeMdcKeyName>traceId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+            </encoder>
+        </appender>
+
+        <!-- 错误日志：单独写入，便于告警触发 -->
+        <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>/var/log/lookforbest/error.log</file>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>ERROR</level>
+            </filter>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>/var/log/lookforbest/error.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+                <maxHistory>60</maxHistory>
+            </rollingPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"app":"${APP_NAME}","env":"prod","level":"error"}</customFields>
+            </encoder>
+        </appender>
+
+        <!-- 异步写入，避免 I/O 阻塞请求线程 -->
+        <appender name="ASYNC_APP" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>1024</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <appender-ref ref="FILE_APP"/>
+        </appender>
+
+        <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>256</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <appender-ref ref="FILE_ERROR"/>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC_APP"/>
+            <appender-ref ref="ASYNC_ERROR"/>
+        </root>
+
+        <!-- 降低框架噪音 -->
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="io.lettuce" level="WARN"/>
+        <logger name="com.zaxxer.hikari" level="WARN"/>
+
+        <!-- 应用代码保留 INFO -->
+        <logger name="com.lookforbest" level="INFO"/>
+    </springProfile>
+
+</configuration>
