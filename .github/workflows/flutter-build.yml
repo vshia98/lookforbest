@@ -32,9 +32,13 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
           channel: stable
           cache: true
+
+      - name: Verify Flutter & Dart versions
+        run: |
+          flutter --version
+          dart --version
 
       - name: Get dependencies
         working-directory: lookforbest_app
@@ -42,11 +46,11 @@ jobs:
 
       - name: Generate launcher icons
         working-directory: lookforbest_app
-        run: flutter pub run flutter_launcher_icons
+        run: dart run flutter_launcher_icons
 
       - name: Generate native splash
         working-directory: lookforbest_app
-        run: flutter pub run flutter_native_splash:create
+        run: dart run flutter_native_splash:create
 
       - name: Run tests
         working-directory: lookforbest_app
@@ -111,9 +115,13 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'
           channel: stable
           cache: true
+
+      - name: Verify Flutter & Dart versions
+        run: |
+          flutter --version
+          dart --version
 
       - name: Get dependencies
         working-directory: lookforbest_app
@@ -121,11 +129,11 @@ jobs:
 
       - name: Generate launcher icons
         working-directory: lookforbest_app
-        run: flutter pub run flutter_launcher_icons
+        run: dart run flutter_launcher_icons
 
       - name: Generate native splash
         working-directory: lookforbest_app
-        run: flutter pub run flutter_native_splash:create
+        run: dart run flutter_native_splash:create
 
       - name: Build iOS (no codesign)
         working-directory: lookforbest_app
