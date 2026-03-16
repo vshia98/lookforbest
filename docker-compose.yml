@@ -15,8 +15,6 @@ services:
       - "127.0.0.1:3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./backend/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
-      - ./backend/src/main/resources/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     deploy:
       resources:
@@ -146,6 +144,9 @@ services:
       ELASTICSEARCH_URIS: http://elasticsearch:9200
       ELASTICSEARCH_ENABLED: "true"
       CRAWLER_URL: http://crawler:8002
+      SWAGGER_ENABLED: "false"
+      # nginx 容器通过 Docker 内网转发请求，其 IP 在 172.x 段，信任该段的代理 IP
+      RATE_LIMIT_TRUSTED_PROXIES: "127.0.0.1,::1,172."
     deploy:
       resources:
         limits:
@@ -248,11 +249,19 @@ services:
       DB_NAME: lookforbest
       DB_USER: ${DB_USERNAME:-lookforbest}
       DB_PASSWORD: ${DB_PASSWORD:-lookforbest}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: lookforbest
       PORT: 8002
     ports:
       - "127.0.0.1:8002:8002"
+    volumes:
+      - ./scripts:/app/scripts
     depends_on:
       mysql:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     deploy:
       resources:

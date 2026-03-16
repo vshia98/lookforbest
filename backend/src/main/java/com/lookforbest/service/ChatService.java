@@ -136,7 +136,7 @@ public class ChatService {
                     r.getName(),
                     r.getNameEn() != null ? r.getNameEn() : "",
                     r.getDescription() != null ? r.getDescription().substring(0, Math.min(100, r.getDescription().length())) : "",
-                    r.getPrice() != null ? r.getPrice() + "元" : "面议",
+                    r.getPriceUsdFrom() != null ? r.getPriceUsdFrom() + "元" : "面议",
                     r.getCategory() != null ? r.getCategory().getName() : "未分类"
             ));
         }

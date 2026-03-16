@@ -8,7 +8,7 @@ export default defineConfig({
       template: {
         compilerOptions: {
           // 允许 model-viewer 等自定义元素
-          isCustomElement: (tag) => tag.includes('-')
+          isCustomElement: (tag) => tag === 'model-viewer'
         }
       }
     })
@@ -23,6 +23,10 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+      '/lookforbest': {
+        target: 'http://localhost:9000',
         changeOrigin: true
       }
     }

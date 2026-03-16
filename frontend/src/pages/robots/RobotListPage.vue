@@ -2,9 +2,12 @@
   <div class="max-w-7xl mx-auto px-4 py-8">
     <!-- 页头 -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">机器人产品库</h1>
+      <h1 class="text-2xl font-bold text-white">机器人产品库</h1>
       <p class="text-gray-500 mt-1">共 {{ total }} 款产品</p>
     </div>
+
+    <!-- 顶部广告 -->
+    <AdBanner position="list_top" class="mb-5" />
 
     <div class="flex gap-6">
       <!-- 筛选面板 -->
@@ -29,7 +32,7 @@
           <select
             v-model="filters.sort"
             @change="loadRobots"
-            class="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="bg-dark-50 border border-white/[0.06] rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             <option value="relevance">综合排序</option>
             <option value="newest">最新上架</option>
@@ -44,10 +47,10 @@
         <div v-else-if="robots.length === 0" class="text-center py-20">
           <div class="text-5xl mb-4">🤖</div>
           <p class="text-gray-500">未找到符合条件的机器人</p>
-          <button @click="resetFilters" class="mt-4 text-primary-500 hover:underline text-sm">清除筛选条件</button>
+          <button @click="resetFilters" class="mt-4 text-primary hover:underline text-sm">清除筛选条件</button>
         </div>
 
-        <!-- 机器人网格（每6个插入一个推广卡片） -->
+        <!-- 机器人网格 -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           <template v-for="(robot, index) in robots" :key="robot.id">
             <AdCard
@@ -66,17 +69,17 @@
           <button
             :disabled="currentPage === 0"
             @click="changePage(currentPage - 1)"
-            class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+            class="px-4 py-2 rounded-lg border border-white/10 text-sm text-gray-400 disabled:opacity-40 hover:border-primary/30 hover:text-primary transition-all"
           >
             上一页
           </button>
           <template v-for="p in pageNumbers" :key="p">
-            <span v-if="p === '...'" class="px-2 text-gray-400">...</span>
+            <span v-if="p === '...'" class="px-2 text-gray-600">...</span>
             <button
               v-else
               @click="changePage(p as number)"
-              class="w-9 h-9 rounded-lg text-sm"
-              :class="p === currentPage ? 'bg-primary-500 text-white' : 'border border-gray-200 hover:bg-gray-50'"
+              class="w-9 h-9 rounded-lg text-sm transition-all"
+              :class="p === currentPage ? 'bg-primary text-gray-900 font-bold' : 'border border-white/10 text-gray-400 hover:border-primary/30 hover:text-primary'"
             >
               {{ (p as number) + 1 }}
             </button>
@@ -84,7 +87,7 @@
           <button
             :disabled="currentPage >= totalPages - 1"
             @click="changePage(currentPage + 1)"
-            class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+            class="px-4 py-2 rounded-lg border border-white/10 text-sm text-gray-400 disabled:opacity-40 hover:border-primary/30 hover:text-primary transition-all"
           >
             下一页
           </button>
@@ -99,9 +102,11 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import RobotCard from '@/components/robot/RobotCard.vue'
 import AdCard from '@/components/ui/AdCard.vue'
+import AdBanner from '@/components/ui/AdBanner.vue'
 import FilterPanel from '@/components/robot/FilterPanel.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import SearchBox from '@/components/ui/SearchBox.vue'
+import http from '@/services/api'
 import { robotService, searchService, adService } from '@/services/robots'
 import type { RobotListItem } from '@/types/robot'
 
@@ -117,10 +122,12 @@ const facets = reactive({ categories: [] as any[], manufacturers: [] as any[] })
 const highlightMap = ref<Record<string, Record<string, string[]>>>({})
 const listAds = ref<any[]>([])
 
+const pendingCategorySlug = ref(route.query.category as string || '')
+
 const filters = reactive<Record<string, any>>({
   q: route.query.q as string || '',
   sort: 'relevance',
-  categoryId: undefined,
+  categoryId: route.query.categoryId ? Number(route.query.categoryId) : undefined,
   manufacturerId: undefined,
   payloadMin: undefined,
   payloadMax: undefined,
@@ -155,14 +162,24 @@ async function loadRobots() {
   loading.value = true
   highlightMap.value = {}
   try {
+    // 如果有 category slug 但还没解析成 ID，查分类接口匹配
+    if (pendingCategorySlug.value && !filters.categoryId) {
+      try {
+        const catRes: any = await http.get('/categories')
+        const cats = catRes.data || catRes || []
+        const slug = pendingCategorySlug.value
+        const match = cats.find((c: any) => c.slug === slug || c.name === slug)
+        if (match) filters.categoryId = match.id
+      } catch {}
+      pendingCategorySlug.value = ''
+    }
+
     const params: any = { ...filters, page: currentPage.value, size: 18 }
     Object.keys(params).forEach(k => { if (params[k] === undefined || params[k] === '') delete params[k] })
 
-    // 有搜索词时走 ES 搜索接口，否则走普通列表
     if (params.q) {
       const res = await searchService.search(params)
       const esData = res.data
-      // ES 接口返回结构: { hits, total, page, size, totalPages }
       robots.value = (esData.hits || []).map((h: any) => ({
         id: Number(h.id),
         name: h.name,
@@ -179,7 +196,6 @@ async function loadRobots() {
       }))
       total.value = esData.total || 0
       totalPages.value = esData.totalPages || 1
-      // 收集高亮片段
       const map: Record<string, Record<string, string[]>> = {}
       ;(esData.hits || []).forEach((h: any) => {
         if (h.highlights) map[String(h.id)] = h.highlights
@@ -216,6 +232,16 @@ function resetFilters() {
 watch(() => route.query.q, (q) => {
   if (q) {
     filters.q = q as string
+    currentPage.value = 0
+    loadRobots()
+  }
+})
+
+watch(() => route.query.category, (cat) => {
+  if (cat) {
+    pendingCategorySlug.value = cat as string
+    filters.categoryId = undefined
+    currentPage.value = 0
     loadRobots()
   }
 })
@@ -237,8 +263,8 @@ onMounted(() => {
 
 <style scoped>
 :deep(.highlight) {
-  background-color: #fef08a;
-  color: #713f12;
+  background-color: rgba(0, 255, 209, 0.15);
+  color: #77F8D3;
   border-radius: 2px;
   padding: 0 2px;
   font-style: normal;

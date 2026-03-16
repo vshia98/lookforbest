@@ -4,8 +4,8 @@ import com.lookforbest.entity.Robot;
 import com.lookforbest.entity.RobotEsDocument;
 import com.lookforbest.repository.es.RobotEsRepository;
 import com.lookforbest.repository.RobotRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
@@ -19,33 +19,32 @@ import java.util.List;
  * 负责将 MySQL 机器人数据同步到 Elasticsearch
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class ElasticsearchSyncService {
 
     private final RobotRepository robotRepository;
-    private final RobotEsRepository robotEsRepository;
+
+    @Autowired(required = false)
+    private RobotEsRepository robotEsRepository;
 
     @Value("${app.elasticsearch.enabled:false}")
     private boolean esEnabled;
 
-    /**
-     * 全量同步：将所有机器人数据写入 ES
-     */
+    public ElasticsearchSyncService(RobotRepository robotRepository) {
+        this.robotRepository = robotRepository;
+    }
+
     @Transactional(readOnly = true)
     public void fullSync() {
-        if (!esEnabled) return;
+        if (!esEnabled || robotEsRepository == null) return;
         log.info("开始全量同步机器人数据到 Elasticsearch...");
         int page = 0;
         int batchSize = 200;
         int total = 0;
         while (true) {
-            List<Robot> robots = robotRepository.findAll(
-                    PageRequest.of(page, batchSize)).getContent();
+            List<Robot> robots = robotRepository.findAll(PageRequest.of(page, batchSize)).getContent();
             if (robots.isEmpty()) break;
-            List<RobotEsDocument> docs = robots.stream()
-                    .map(RobotEsDocument::from)
-                    .toList();
+            List<RobotEsDocument> docs = robots.stream().map(RobotEsDocument::from).toList();
             robotEsRepository.saveAll(docs);
             total += docs.size();
             page++;
@@ -53,12 +52,9 @@ public class ElasticsearchSyncService {
         log.info("全量同步完成，共同步 {} 条记录", total);
     }
 
-    /**
-     * 增量同步：同步单个机器人到 ES（在机器人创建/更新时调用）
-     */
     @Async
     public void syncRobot(Robot robot) {
-        if (!esEnabled) return;
+        if (!esEnabled || robotEsRepository == null) return;
         try {
             robotEsRepository.save(RobotEsDocument.from(robot));
         } catch (Exception e) {
@@ -66,12 +62,9 @@ public class ElasticsearchSyncService {
         }
     }
 
-    /**
-     * 从 ES 删除机器人文档
-     */
     @Async
     public void deleteRobot(Long robotId) {
-        if (!esEnabled) return;
+        if (!esEnabled || robotEsRepository == null) return;
         try {
             robotEsRepository.deleteById(String.valueOf(robotId));
         } catch (Exception e) {
@@ -79,9 +72,6 @@ public class ElasticsearchSyncService {
         }
     }
 
-    /**
-     * 定时全量同步（每天凌晨 2 点执行）
-     */
     @Scheduled(cron = "0 0 2 * * ?")
     public void scheduledFullSync() {
         fullSync();

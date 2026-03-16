@@ -189,16 +189,18 @@ def upsert_robot(conn, robot: dict) -> int:
         cur.execute("""
             INSERT INTO robots (
                 manufacturer_id, category_id, name, name_en, slug, description,
-                cover_image_url, price_range, status, is_verified, payload_kg, reach_mm, dof
+                cover_image_url, source_url, price_range, status, is_verified,
+                payload_kg, reach_mm, dof
             ) VALUES (
                 %(manufacturer_id)s, %(category_id)s, %(name)s, %(name_en)s, %(slug)s, %(description)s,
-                %(cover_image_url)s, %(price_range)s, %(status)s, 0,
+                %(cover_image_url)s, %(source_url)s, %(price_range)s, %(status)s, 0,
                 %(payload_kg)s, %(reach_mm)s, %(dof)s
             )
             ON DUPLICATE KEY UPDATE
                 name_en         = VALUES(name_en),
                 description     = VALUES(description),
                 cover_image_url = IFNULL(VALUES(cover_image_url), cover_image_url),
+                source_url      = IFNULL(VALUES(source_url), source_url),
                 price_range     = VALUES(price_range),
                 status          = VALUES(status),
                 payload_kg      = IFNULL(VALUES(payload_kg), payload_kg),

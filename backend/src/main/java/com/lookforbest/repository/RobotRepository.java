@@ -32,9 +32,18 @@ public interface RobotRepository extends JpaRepository<Robot, Long> {
     @Query("""
         SELECT DISTINCT r FROM Robot r
         LEFT JOIN r.applicationDomains d
+        LEFT JOIN r.tags t
         WHERE (:q IS NULL OR LOWER(r.name) LIKE LOWER(CONCAT('%',:q,'%'))
                            OR LOWER(r.nameEn) LIKE LOWER(CONCAT('%',:q,'%'))
-                           OR LOWER(r.modelNumber) LIKE LOWER(CONCAT('%',:q,'%')))
+                           OR LOWER(r.modelNumber) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(r.manufacturer.name) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(r.category.name) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(r.description) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(r.introduction) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(r.applicationScenarios) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(r.advantages) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(r.subtitle) LIKE LOWER(CONCAT('%',:q,'%'))
+                           OR LOWER(t.name) LIKE LOWER(CONCAT('%',:q,'%')))
           AND (:categoryId IS NULL OR r.category.id = :categoryId)
           AND (:manufacturerId IS NULL OR r.manufacturer.id = :manufacturerId)
           AND (:domainIds IS NULL OR d.id IN :domainIds)
@@ -67,8 +76,8 @@ public interface RobotRepository extends JpaRepository<Robot, Long> {
             com.lookforbest.entity.RobotCategory category, Long id);
 
     /** 返回所有机器人的 slug 和 updatedAt，用于 sitemap 生成 */
-    @Query("SELECT r.slug, r.updatedAt FROM Robot r WHERE r.status = com.lookforbest.entity.Robot.RobotStatus.active ORDER BY r.updatedAt DESC")
-    List<Object[]> findAllSlugAndUpdatedAt();
+    @Query("SELECT r.slug, r.updatedAt FROM Robot r WHERE r.status = :status ORDER BY r.updatedAt DESC")
+    List<Object[]> findAllSlugAndUpdatedAt(@Param("status") Robot.RobotStatus status);
 
     /** 厂商门户：统计该厂商的机器人数量 */
     long countByManufacturerId(Long manufacturerId);

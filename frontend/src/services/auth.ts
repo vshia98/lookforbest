@@ -12,7 +12,7 @@ export const authService = {
   },
 
   me() {
-    return http.get<any, { data: any }>('/auth/me')
+    return http.get<any, { data: any }>('/users/me')
   },
 
   refreshToken() {

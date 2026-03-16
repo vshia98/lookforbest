@@ -1,47 +1,47 @@
 <template>
   <div class="space-y-6">
-    <h1 class="text-2xl font-bold text-gray-800">会员管理</h1>
+    <h1 class="text-2xl font-bold text-white">会员管理</h1>
 
     <!-- 标签页 -->
-    <div class="flex gap-1 border-b border-gray-200">
+    <div class="flex gap-1 border-b border-white/[0.06]">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         @click="activeTab = tab.key"
         class="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
         :class="activeTab === tab.key
-          ? 'border-primary-600 text-primary-600'
-          : 'border-transparent text-gray-500 hover:text-gray-700'"
+          ? 'border-primary-600 text-primary'
+          : 'border-transparent text-gray-500 hover:text-gray-300'"
       >{{ tab.label }}</button>
     </div>
 
     <!-- Tab 1: 套餐管理 -->
     <div v-if="activeTab === 'plans'" class="space-y-6">
       <div class="flex justify-between items-center">
-        <h2 class="text-base font-semibold text-gray-700">套餐列表</h2>
+        <h2 class="text-base font-semibold text-gray-300">套餐列表</h2>
         <button
           @click="openPlanForm(null)"
-          class="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700"
+          class="px-4 py-2 bg-primary text-[#1a1a1a] text-sm rounded-lg hover:bg-primary-400"
         >+ 新增套餐</button>
       </div>
 
       <div v-if="plansLoading" class="text-gray-400 text-sm">加载中...</div>
-      <div v-else class="overflow-x-auto bg-white rounded-xl shadow">
+      <div v-else class="overflow-x-auto bg-dark-50 rounded-xl shadow">
         <table class="w-full text-sm text-left">
-          <thead class="bg-gray-50 border-b">
+          <thead class="bg-dark-100 border-b border-white/[0.04]">
             <tr>
-              <th class="px-4 py-3 text-gray-600">ID</th>
-              <th class="px-4 py-3 text-gray-600">套餐名</th>
-              <th class="px-4 py-3 text-gray-600">价格(CNY)</th>
-              <th class="px-4 py-3 text-gray-600">天数</th>
-              <th class="px-4 py-3 text-gray-600">对比上限</th>
-              <th class="px-4 py-3 text-gray-600">API</th>
-              <th class="px-4 py-3 text-gray-600">状态</th>
-              <th class="px-4 py-3 text-gray-600">操作</th>
+              <th class="px-4 py-3 text-gray-400">ID</th>
+              <th class="px-4 py-3 text-gray-400">套餐名</th>
+              <th class="px-4 py-3 text-gray-400">价格(CNY)</th>
+              <th class="px-4 py-3 text-gray-400">天数</th>
+              <th class="px-4 py-3 text-gray-400">对比上限</th>
+              <th class="px-4 py-3 text-gray-400">API</th>
+              <th class="px-4 py-3 text-gray-400">状态</th>
+              <th class="px-4 py-3 text-gray-400">操作</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="plan in adminPlans" :key="plan.id" class="border-b hover:bg-gray-50">
+            <tr v-for="plan in adminPlans" :key="plan.id" class="border-b border-white/[0.04] hover:bg-dark-100">
               <td class="px-4 py-3 text-gray-500">{{ plan.id }}</td>
               <td class="px-4 py-3 font-medium">{{ plan.name }}<span class="text-xs text-gray-400 ml-1">({{ plan.nameEn }})</span></td>
               <td class="px-4 py-3">{{ plan.priceCny == 0 ? '免费' : '¥' + plan.priceCny }}</td>
@@ -58,7 +58,7 @@
               <td class="px-4 py-3">
                 <button
                   @click="openPlanForm(plan)"
-                  class="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                  class="text-blue-400 hover:text-blue-800 text-xs font-medium"
                 >编辑</button>
               </td>
             </tr>
@@ -67,48 +67,48 @@
       </div>
 
       <!-- 套餐编辑表单 -->
-      <div v-if="editingPlan !== undefined" class="bg-white rounded-xl shadow p-6 space-y-4">
-        <h3 class="text-base font-semibold text-gray-800">{{ editingPlan?.id ? '编辑套餐' : '新增套餐' }}</h3>
+      <div v-if="editingPlan !== undefined" class="bg-dark-50 rounded-xl shadow p-6 space-y-4">
+        <h3 class="text-base font-semibold text-white">{{ editingPlan?.id ? '编辑套餐' : '新增套餐' }}</h3>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="text-xs text-gray-500 mb-1 block">套餐名称（中文）</label>
-            <input v-model="planForm.name" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model="planForm.name" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">套餐名称（英文）</label>
-            <input v-model="planForm.nameEn" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model="planForm.nameEn" class="input-dark" />
           </div>
           <div class="col-span-2">
             <label class="text-xs text-gray-500 mb-1 block">描述</label>
-            <input v-model="planForm.description" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model="planForm.description" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">价格（CNY）</label>
-            <input v-model.number="planForm.priceCny" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="planForm.priceCny" type="number" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">价格（USD）</label>
-            <input v-model.number="planForm.priceUsd" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="planForm.priceUsd" type="number" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">有效天数（0=永久）</label>
-            <input v-model.number="planForm.durationDays" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="planForm.durationDays" type="number" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">最大对比数量</label>
-            <input v-model.number="planForm.maxCompareRobots" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="planForm.maxCompareRobots" type="number" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">每日导出次数（0=不限）</label>
-            <input v-model.number="planForm.maxExportsPerDay" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="planForm.maxExportsPerDay" type="number" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">排序值</label>
-            <input v-model.number="planForm.sortOrder" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="planForm.sortOrder" type="number" class="input-dark" />
           </div>
           <div class="col-span-2">
             <label class="text-xs text-gray-500 mb-1 block">功能列表（逗号分隔）</label>
-            <input v-model="planFeaturesStr" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="功能1,功能2,功能3" />
+            <input v-model="planFeaturesStr" class="input-dark" placeholder="功能1,功能2,功能3" />
           </div>
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2 text-sm">
@@ -125,11 +125,11 @@
           <button
             @click="savePlan"
             :disabled="savingPlan"
-            class="px-5 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 disabled:opacity-60"
+            class="px-5 py-2 bg-primary text-[#1a1a1a] text-sm rounded-lg hover:bg-primary-400 disabled:opacity-60"
           >{{ savingPlan ? '保存中...' : '保存' }}</button>
           <button
             @click="editingPlan = undefined"
-            class="px-5 py-2 border border-gray-300 text-sm text-gray-600 rounded-lg hover:bg-gray-50"
+            class="px-5 py-2 border border-white/[0.06] text-sm text-gray-400 rounded-lg hover:bg-dark-100"
           >取消</button>
         </div>
       </div>
@@ -138,7 +138,7 @@
     <!-- Tab 2: 订单管理 -->
     <div v-if="activeTab === 'orders'" class="space-y-4">
       <div class="flex items-center gap-3">
-        <select v-model="orderStatusFilter" class="border rounded-lg px-3 py-2 text-sm text-gray-700">
+        <select v-model="orderStatusFilter" class="input-dark">
           <option value="">全部状态</option>
           <option value="pending">待支付</option>
           <option value="paid">已支付</option>
@@ -146,29 +146,29 @@
           <option value="refunded">已退款</option>
           <option value="failed">失败</option>
         </select>
-        <button @click="loadAdminOrders" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200">
+        <button @click="loadAdminOrders" class="px-4 py-2 bg-dark-100 text-gray-300 text-sm rounded-lg hover:bg-white/[0.06]">
           刷新
         </button>
       </div>
 
       <div v-if="ordersLoading" class="text-gray-400 text-sm">加载中...</div>
-      <div v-else class="overflow-x-auto bg-white rounded-xl shadow">
+      <div v-else class="overflow-x-auto bg-dark-50 rounded-xl shadow">
         <table class="w-full text-sm text-left">
-          <thead class="bg-gray-50 border-b">
+          <thead class="bg-dark-100 border-b border-white/[0.04]">
             <tr>
-              <th class="px-4 py-3 text-gray-600">订单号</th>
-              <th class="px-4 py-3 text-gray-600">用户ID</th>
-              <th class="px-4 py-3 text-gray-600">套餐</th>
-              <th class="px-4 py-3 text-gray-600">金额</th>
-              <th class="px-4 py-3 text-gray-600">支付方式</th>
-              <th class="px-4 py-3 text-gray-600">状态</th>
-              <th class="px-4 py-3 text-gray-600">创建时间</th>
-              <th class="px-4 py-3 text-gray-600">操作</th>
+              <th class="px-4 py-3 text-gray-400">订单号</th>
+              <th class="px-4 py-3 text-gray-400">用户ID</th>
+              <th class="px-4 py-3 text-gray-400">套餐</th>
+              <th class="px-4 py-3 text-gray-400">金额</th>
+              <th class="px-4 py-3 text-gray-400">支付方式</th>
+              <th class="px-4 py-3 text-gray-400">状态</th>
+              <th class="px-4 py-3 text-gray-400">创建时间</th>
+              <th class="px-4 py-3 text-gray-400">操作</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="order in filteredAdminOrders" :key="order.id" class="border-b hover:bg-gray-50">
-              <td class="px-4 py-3 font-mono text-xs text-gray-600">{{ order.orderNo }}</td>
+            <tr v-for="order in filteredAdminOrders" :key="order.id" class="border-b border-white/[0.04] hover:bg-dark-100">
+              <td class="px-4 py-3 font-mono text-xs text-gray-400">{{ order.orderNo }}</td>
               <td class="px-4 py-3">{{ order.userId }}</td>
               <td class="px-4 py-3">{{ order.planName }}</td>
               <td class="px-4 py-3">¥{{ order.amountCny }}</td>
@@ -201,7 +201,7 @@
           @click="ordersPage--; loadAdminOrders()"
           class="px-3 py-1 text-sm border rounded-lg disabled:opacity-40"
         >上一页</button>
-        <span class="text-sm text-gray-600">第 {{ ordersPage + 1 }} 页</span>
+        <span class="text-sm text-gray-400">第 {{ ordersPage + 1 }} 页</span>
         <button
           @click="ordersPage++; loadAdminOrders()"
           class="px-3 py-1 text-sm border rounded-lg"
@@ -210,29 +210,29 @@
 
       <!-- 手动激活弹窗 -->
       <div v-if="activatingOrder" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm space-y-4">
-          <h3 class="text-lg font-bold text-gray-900">手动激活会员</h3>
+        <div class="bg-dark-50 rounded-2xl shadow-xl p-8 w-full max-w-sm space-y-4">
+          <h3 class="text-lg font-bold text-white">手动激活会员</h3>
           <p class="text-sm text-gray-500">订单号：{{ activatingOrder.orderNo }}</p>
           <div>
             <label class="text-xs text-gray-500 block mb-1">用户ID</label>
-            <input v-model.number="activateForm.userId" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="activateForm.userId" type="number" class="input-dark" />
           </div>
           <div>
             <label class="text-xs text-gray-500 block mb-1">套餐ID</label>
-            <select v-model.number="activateForm.planId" class="w-full border rounded-lg px-3 py-2 text-sm">
+            <select v-model.number="activateForm.planId" class="input-dark">
               <option v-for="p in adminPlans" :key="p.id" :value="p.id">{{ p.name }}</option>
             </select>
           </div>
           <div>
             <label class="text-xs text-gray-500 block mb-1">有效天数（0=永久）</label>
-            <input v-model.number="activateForm.durationDays" type="number" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <input v-model.number="activateForm.durationDays" type="number" class="input-dark" />
           </div>
           <div class="flex gap-3">
-            <button @click="activatingOrder = null" class="flex-1 py-2 border border-gray-300 text-sm rounded-lg">取消</button>
+            <button @click="activatingOrder = null" class="flex-1 py-2 border border-white/[0.06] text-sm rounded-lg">取消</button>
             <button
               @click="doManualActivate"
               :disabled="activating"
-              class="flex-1 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-60"
+              class="flex-1 py-2 bg-green-600 text-[#1a1a1a] text-sm rounded-lg hover:bg-green-700 disabled:opacity-60"
             >{{ activating ? '激活中...' : '确认激活' }}</button>
           </div>
         </div>
@@ -242,22 +242,22 @@
     <!-- Tab 3: 会员统计 -->
     <div v-if="activeTab === 'stats'" class="space-y-6">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl shadow p-6 text-center">
-          <p class="text-3xl font-extrabold text-primary-600">{{ statsData.totalOrders }}</p>
+        <div class="bg-dark-50 rounded-xl shadow p-6 text-center">
+          <p class="text-3xl font-extrabold text-primary">{{ statsData.totalOrders }}</p>
           <p class="text-sm text-gray-500 mt-1">总订单数</p>
         </div>
-        <div class="bg-white rounded-xl shadow p-6 text-center">
+        <div class="bg-dark-50 rounded-xl shadow p-6 text-center">
           <p class="text-3xl font-extrabold text-green-600">{{ statsData.paidOrders }}</p>
           <p class="text-sm text-gray-500 mt-1">已支付订单</p>
         </div>
-        <div class="bg-white rounded-xl shadow p-6 text-center">
+        <div class="bg-dark-50 rounded-xl shadow p-6 text-center">
           <p class="text-3xl font-extrabold text-yellow-600">¥{{ statsData.totalRevenue }}</p>
           <p class="text-sm text-gray-500 mt-1">总收入（CNY）</p>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow p-6">
-        <h3 class="text-base font-semibold text-gray-800 mb-4">各套餐订单分布</h3>
+      <div class="bg-dark-50 rounded-xl shadow p-6">
+        <h3 class="text-base font-semibold text-white mb-4">各套餐订单分布</h3>
         <div v-if="statsData.planDistribution.length === 0" class="text-gray-400 text-sm">暂无数据</div>
         <div v-else class="space-y-3">
           <div
@@ -265,14 +265,14 @@
             :key="item.planName"
             class="flex items-center gap-4"
           >
-            <span class="text-sm text-gray-700 w-24">{{ item.planName }}</span>
-            <div class="flex-1 bg-gray-100 rounded-full h-3">
+            <span class="text-sm text-gray-300 w-24">{{ item.planName }}</span>
+            <div class="flex-1 bg-dark-100 rounded-full h-3">
               <div
-                class="bg-primary-500 h-3 rounded-full"
+                class="bg-primary h-3 rounded-full"
                 :style="{ width: Math.round((item.count / statsData.paidOrders) * 100) + '%' }"
               ></div>
             </div>
-            <span class="text-sm text-gray-600 w-12 text-right">{{ item.count }} 单</span>
+            <span class="text-sm text-gray-400 w-12 text-right">{{ item.count }} 单</span>
           </div>
         </div>
       </div>
@@ -406,13 +406,13 @@ const statsData = computed(() => {
 
 function orderStatusClass(status: string) {
   const map: Record<string, string> = {
-    paid: 'bg-green-100 text-green-700',
-    pending: 'bg-yellow-100 text-yellow-700',
-    failed: 'bg-red-100 text-red-700',
-    refunded: 'bg-gray-100 text-gray-600',
-    cancelled: 'bg-gray-100 text-gray-400'
+    paid: 'bg-green-900/30 text-green-400',
+    pending: 'bg-yellow-900/30 text-yellow-400',
+    failed: 'bg-red-900/30 text-red-400',
+    refunded: 'bg-dark-100 text-gray-400',
+    cancelled: 'bg-dark-100 text-gray-400'
   }
-  return map[status] ?? 'bg-gray-100 text-gray-600'
+  return map[status] ?? 'bg-dark-100 text-gray-400'
 }
 
 function orderStatusLabel(status: string) {

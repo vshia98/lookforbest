@@ -17,11 +17,11 @@ export const i18n = createI18n<[MessageSchema], 'zh' | 'en'>({
 })
 
 export function setLocale(locale: 'zh' | 'en') {
-  i18n.global.locale.value = locale
+  ;(i18n.global.locale as any).value = locale
   localStorage.setItem('locale', locale)
   document.documentElement.lang = locale
 }
 
 export function getLocale(): string {
-  return i18n.global.locale.value
+  return (i18n.global.locale as any).value
 }

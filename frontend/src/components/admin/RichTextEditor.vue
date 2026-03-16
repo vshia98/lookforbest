@@ -1,22 +1,22 @@
 <template>
-  <div class="border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary-500">
+  <div class="border border-white/[0.06] rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary/40">
     <!-- 工具栏 -->
-    <div class="flex flex-wrap items-center gap-0.5 p-1.5 border-b border-gray-100 bg-gray-50">
+    <div class="flex flex-wrap items-center gap-0.5 p-1.5 border-b border-white/[0.04] bg-dark-100">
       <button
         v-for="btn in toolbar"
         :key="btn.cmd"
         type="button"
         :title="btn.label"
         @mousedown.prevent="exec(btn.cmd, btn.value)"
-        class="w-7 h-7 flex items-center justify-center rounded text-sm text-gray-600 hover:bg-gray-200 transition-colors"
-        :class="{ 'bg-gray-200': isActive(btn.cmd) }"
+        class="w-7 h-7 flex items-center justify-center rounded text-sm text-gray-400 hover:bg-white/[0.06] hover:text-white transition-colors"
+        :class="{ 'bg-white/[0.08] text-primary': isActive(btn.cmd) }"
       >
         <span v-html="btn.icon"></span>
       </button>
-      <div class="w-px h-5 bg-gray-200 mx-0.5"></div>
+      <div class="w-px h-5 bg-white/[0.06] mx-0.5"></div>
       <select
         @change="exec('formatBlock', ($event.target as HTMLSelectElement).value)"
-        class="text-xs border-0 bg-transparent text-gray-600 focus:outline-none cursor-pointer"
+        class="text-xs border-0 bg-transparent text-gray-400 focus:outline-none cursor-pointer"
       >
         <option value="p">正文</option>
         <option value="h2">标题2</option>
@@ -29,7 +29,7 @@
     <div
       ref="editorRef"
       contenteditable="true"
-      class="min-h-32 p-3 text-sm text-gray-800 focus:outline-none prose prose-sm max-w-none"
+      class="min-h-32 p-3 text-sm text-gray-200 bg-dark-50 focus:outline-none prose prose-sm prose-invert max-w-none"
       @input="onInput"
       @paste="onPaste"
     ></div>
@@ -45,7 +45,7 @@ const emit = defineEmits<{ (e: 'update:modelValue', v: string): void }>()
 const editorRef = ref<HTMLDivElement | null>(null)
 const internalUpdate = ref(false)
 
-const toolbar = [
+const toolbar: { cmd: string; label: string; icon: string; value?: string }[] = [
   { cmd: 'bold', label: '加粗', icon: '<b>B</b>' },
   { cmd: 'italic', label: '斜体', icon: '<i>I</i>' },
   { cmd: 'underline', label: '下划线', icon: '<u>U</u>' },

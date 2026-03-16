@@ -1,10 +1,10 @@
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-bold text-gray-800">广告管理</h1>
+      <h1 class="text-xl font-bold text-white">广告管理</h1>
       <button
         @click="openCreateModal"
-        class="bg-primary-500 hover:bg-primary-600 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+        class="bg-primary hover:bg-primary text-[#1a1a1a] text-sm px-4 py-2 rounded-lg transition-colors"
       >
         + 新建广告
       </button>
@@ -12,32 +12,32 @@
 
     <!-- 统计卡片 -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+      <div class="bg-dark-50 rounded-xl p-5  border border-white/[0.04]">
         <p class="text-sm text-gray-500">广告总数</p>
-        <p class="text-2xl font-bold text-gray-800 mt-1">{{ stats.total }}</p>
+        <p class="text-2xl font-bold text-white mt-1">{{ stats.total }}</p>
       </div>
-      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+      <div class="bg-dark-50 rounded-xl p-5  border border-white/[0.04]">
         <p class="text-sm text-gray-500">投放中</p>
         <p class="text-2xl font-bold text-green-600 mt-1">{{ stats.active }}</p>
       </div>
-      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+      <div class="bg-dark-50 rounded-xl p-5  border border-white/[0.04]">
         <p class="text-sm text-gray-500">总点击数</p>
-        <p class="text-2xl font-bold text-blue-600 mt-1">{{ stats.totalClicks }}</p>
+        <p class="text-2xl font-bold text-blue-400 mt-1">{{ stats.totalClicks }}</p>
       </div>
-      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+      <div class="bg-dark-50 rounded-xl p-5  border border-white/[0.04]">
         <p class="text-sm text-gray-500">平均CTR</p>
         <p class="text-2xl font-bold text-amber-600 mt-1">{{ stats.avgCtr }}%</p>
       </div>
     </div>
 
     <!-- 广告列表 -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-100">
-        <h2 class="font-semibold text-gray-700">广告列表</h2>
+    <div class="bg-dark-50 rounded-xl  border border-white/[0.04] overflow-hidden">
+      <div class="px-6 py-4 border-b border-white/[0.04]">
+        <h2 class="font-semibold text-gray-300">广告列表</h2>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50">
+          <thead class="bg-dark-100">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">标题</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">位置</th>
@@ -50,7 +50,7 @@
               <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">操作</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
+          <tbody class="divide-y divide-white/[0.04]">
             <tr v-if="loading" class="text-center">
               <td colspan="9" class="py-10 text-gray-400">加载中...</td>
             </tr>
@@ -60,7 +60,7 @@
             <tr
               v-for="ad in ads"
               :key="ad.id"
-              class="hover:bg-gray-50 transition-colors"
+              class="hover:bg-dark-100 transition-colors"
             >
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
@@ -70,8 +70,8 @@
                     class="w-10 h-7 object-cover rounded"
                     :alt="ad.title"
                   />
-                  <div v-else class="w-10 h-7 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">图</div>
-                  <span class="font-medium text-gray-800 truncate max-w-[160px]">{{ ad.title }}</span>
+                  <div v-else class="w-10 h-7 bg-dark-100 rounded flex items-center justify-center text-gray-400 text-xs">图</div>
+                  <span class="font-medium text-white truncate max-w-[160px]">{{ ad.title }}</span>
                 </div>
               </td>
               <td class="px-4 py-3">
@@ -79,7 +79,7 @@
                   {{ positionLabel(ad.position) }}
                 </span>
               </td>
-              <td class="px-4 py-3 text-gray-600">{{ adTypeLabel(ad.adType) }}</td>
+              <td class="px-4 py-3 text-gray-400">{{ adTypeLabel(ad.adType) }}</td>
               <td class="px-4 py-3 text-gray-500 text-xs">
                 <span v-if="ad.startDate || ad.endDate">
                   {{ ad.startDate || '∞' }} ~ {{ ad.endDate || '∞' }}
@@ -90,16 +90,16 @@
                 <button
                   @click="toggleActive(ad)"
                   class="w-11 h-6 rounded-full transition-colors relative"
-                  :class="ad.isActive ? 'bg-green-500' : 'bg-gray-300'"
+                  :class="ad.isActive ? 'bg-green-900/200' : 'bg-gray-300'"
                 >
                   <span
-                    class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
+                    class="absolute top-0.5 w-5 h-5 bg-dark-50 rounded-full shadow transition-transform"
                     :class="ad.isActive ? 'translate-x-5' : 'translate-x-0.5'"
                   />
                 </button>
               </td>
-              <td class="px-4 py-3 text-right text-gray-600">{{ ad.impressionCount?.toLocaleString() ?? 0 }}</td>
-              <td class="px-4 py-3 text-right text-gray-600">{{ ad.clickCount?.toLocaleString() ?? 0 }}</td>
+              <td class="px-4 py-3 text-right text-gray-400">{{ ad.impressionCount?.toLocaleString() ?? 0 }}</td>
+              <td class="px-4 py-3 text-right text-gray-400">{{ ad.clickCount?.toLocaleString() ?? 0 }}</td>
               <td class="px-4 py-3 text-right font-medium" :class="ctrColor(calcCtr(ad))">
                 {{ calcCtr(ad) }}%
               </td>
@@ -107,13 +107,13 @@
                 <div class="flex items-center justify-center gap-2">
                   <button
                     @click="openEditModal(ad)"
-                    class="text-primary-500 hover:text-primary-700 text-xs px-2 py-1 rounded hover:bg-primary-50 transition-colors"
+                    class="text-primary hover:text-primary text-xs px-2 py-1 rounded hover:bg-primary/10 transition-colors"
                   >
                     编辑
                   </button>
                   <button
                     @click="confirmDelete(ad)"
-                    class="text-red-400 hover:text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                    class="text-red-400 hover:text-red-600 text-xs px-2 py-1 rounded hover:bg-red-900/20 transition-colors"
                   >
                     删除
                   </button>
@@ -126,14 +126,14 @@
     </div>
 
     <!-- CTR 报告 -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 class="font-semibold text-gray-700">CTR 报告</h2>
-        <button @click="loadCtrReport" class="text-xs text-primary-500 hover:underline">刷新</button>
+    <div class="bg-dark-50 rounded-xl  border border-white/[0.04] overflow-hidden">
+      <div class="px-6 py-4 border-b border-white/[0.04] flex items-center justify-between">
+        <h2 class="font-semibold text-gray-300">CTR 报告</h2>
+        <button @click="loadCtrReport" class="text-xs text-primary hover:underline">刷新</button>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50">
+          <thead class="bg-dark-100">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">广告标题</th>
               <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">展示次数</th>
@@ -141,14 +141,14 @@
               <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">CTR</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
+          <tbody class="divide-y divide-white/[0.04]">
             <tr v-if="ctrReport.length === 0">
               <td colspan="4" class="py-8 text-center text-gray-400">暂无数据</td>
             </tr>
-            <tr v-for="row in ctrReport" :key="row.adId" class="hover:bg-gray-50">
-              <td class="px-4 py-3 text-gray-800">{{ row.title }}</td>
-              <td class="px-4 py-3 text-right text-gray-600">{{ Number(row.impressions).toLocaleString() }}</td>
-              <td class="px-4 py-3 text-right text-gray-600">{{ Number(row.clicks).toLocaleString() }}</td>
+            <tr v-for="row in ctrReport" :key="row.adId" class="hover:bg-dark-100">
+              <td class="px-4 py-3 text-white">{{ row.title }}</td>
+              <td class="px-4 py-3 text-right text-gray-400">{{ Number(row.impressions).toLocaleString() }}</td>
+              <td class="px-4 py-3 text-right text-gray-400">{{ Number(row.clicks).toLocaleString() }}</td>
               <td class="px-4 py-3 text-right font-medium" :class="ctrColor(Number(row.ctr).toFixed(2))">
                 {{ Number(row.ctr).toFixed(2) }}%
               </td>
@@ -165,32 +165,32 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
         @click.self="showModal = false"
       >
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-          <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-800">{{ editingAd ? '编辑广告' : '新建广告' }}</h3>
-            <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+        <div class="bg-dark-50 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div class="px-6 py-5 border-b border-white/[0.04] flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white">{{ editingAd ? '编辑广告' : '新建广告' }}</h3>
+            <button @click="showModal = false" class="text-gray-400 hover:text-gray-400 text-xl leading-none">&times;</button>
           </div>
           <form @submit.prevent="submitForm" class="px-6 py-5 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">标题 <span class="text-red-500">*</span></label>
-              <input v-model="form.title" required class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="广告标题" />
+              <label class="block text-sm font-medium text-gray-300 mb-1">标题 <span class="text-red-500">*</span></label>
+              <input v-model="form.title" required class="input-dark" placeholder="广告标题" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">描述</label>
-              <textarea v-model="form.description" rows="2" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="广告描述（可选）" />
+              <label class="block text-sm font-medium text-gray-300 mb-1">描述</label>
+              <textarea v-model="form.description" rows="2" class="input-dark" placeholder="广告描述（可选）" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">图片URL</label>
-              <input v-model="form.imageUrl" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="https://..." />
+              <label class="block text-sm font-medium text-gray-300 mb-1">图片URL</label>
+              <input v-model="form.imageUrl" class="input-dark" placeholder="https://..." />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">跳转链接</label>
-              <input v-model="form.linkUrl" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="https://..." />
+              <label class="block text-sm font-medium text-gray-300 mb-1">跳转链接</label>
+              <input v-model="form.linkUrl" class="input-dark" placeholder="https://..." />
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">广告位置 <span class="text-red-500">*</span></label>
-                <select v-model="form.position" required class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <label class="block text-sm font-medium text-gray-300 mb-1">广告位置 <span class="text-red-500">*</span></label>
+                <select v-model="form.position" required class="input-dark">
                   <option value="">请选择</option>
                   <option value="home_banner">首页横幅</option>
                   <option value="list_promoted">列表推广</option>
@@ -199,8 +199,8 @@
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">广告类型</label>
-                <select v-model="form.adType" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <label class="block text-sm font-medium text-gray-300 mb-1">广告类型</label>
+                <select v-model="form.adType" class="input-dark">
                   <option value="banner">横幅</option>
                   <option value="card">卡片</option>
                   <option value="text">文字</option>
@@ -209,23 +209,23 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
-                <input v-model="form.startDate" type="date" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <label class="block text-sm font-medium text-gray-300 mb-1">开始日期</label>
+                <input v-model="form.startDate" type="date" class="input-dark" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
-                <input v-model="form.endDate" type="date" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <label class="block text-sm font-medium text-gray-300 mb-1">结束日期</label>
+                <input v-model="form.endDate" type="date" class="input-dark" />
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">优先级</label>
-                <input v-model.number="form.priority" type="number" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="0" />
+                <label class="block text-sm font-medium text-gray-300 mb-1">优先级</label>
+                <input v-model.number="form.priority" type="number" class="input-dark" placeholder="0" />
               </div>
               <div class="flex items-end pb-1">
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input v-model="form.isActive" type="checkbox" class="w-4 h-4 rounded accent-primary-500" />
-                  <span class="text-sm text-gray-700">立即投放</span>
+                  <span class="text-sm text-gray-300">立即投放</span>
                 </label>
               </div>
             </div>
@@ -233,14 +233,14 @@
               <button
                 type="button"
                 @click="showModal = false"
-                class="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50"
+                class="px-4 py-2 text-sm text-gray-400 border border-white/[0.06] rounded-lg hover:bg-dark-100"
               >
                 取消
               </button>
               <button
                 type="submit"
                 :disabled="submitting"
-                class="px-4 py-2 text-sm bg-primary-500 hover:bg-primary-600 text-white rounded-lg disabled:opacity-60 transition-colors"
+                class="px-4 py-2 text-sm bg-primary hover:bg-primary text-[#1a1a1a] rounded-lg disabled:opacity-60 transition-colors"
               >
                 {{ submitting ? '保存中...' : '保存' }}
               </button>
@@ -328,12 +328,12 @@ function positionLabel(pos: string) {
 
 function positionClass(pos: string) {
   const map: Record<string, string> = {
-    home_banner: 'bg-blue-100 text-blue-700',
-    list_promoted: 'bg-purple-100 text-purple-700',
-    detail_sidebar: 'bg-orange-100 text-orange-700',
-    search_top: 'bg-green-100 text-green-700'
+    home_banner: 'bg-blue-900/30 text-blue-400',
+    list_promoted: 'bg-purple-900/30 text-purple-400',
+    detail_sidebar: 'bg-orange-900/30 text-orange-400',
+    search_top: 'bg-green-900/30 text-green-400'
   }
-  return map[pos] || 'bg-gray-100 text-gray-600'
+  return map[pos] || 'bg-dark-100 text-gray-400'
 }
 
 function adTypeLabel(type: string) {

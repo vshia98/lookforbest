@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">应用案例</h1>
+      <h1 class="text-2xl font-bold text-white">应用案例</h1>
       <p class="text-gray-500 mt-1">共 {{ total }} 个案例</p>
     </div>
 
@@ -12,7 +12,7 @@
         :key="ind.value"
         @click="selectIndustry(ind.value)"
         class="px-4 py-1.5 rounded-full text-sm border transition-colors"
-        :class="selectedIndustry === ind.value ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-200 text-gray-600 hover:border-blue-300'"
+        :class="selectedIndustry === ind.value ? 'bg-primary text-[#1a1a1a] border-primary' : 'border-white/[0.06] text-gray-400 hover:border-primary/40'"
       >
         {{ ind.label }}
       </button>
@@ -20,7 +20,7 @@
 
     <!-- 加载 -->
     <div v-if="loading" class="flex justify-center py-20">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
 
     <!-- 空状态 -->
@@ -35,33 +35,33 @@
         v-for="cs in cases"
         :key="cs.id"
         :to="`/case-studies/${cs.id}`"
-        class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow block"
+        class="bg-dark-50 rounded-xl border border-white/[0.04]  p-5 hover:shadow-md transition-shadow block"
       >
         <div class="flex items-start justify-between mb-3">
           <span
             v-if="cs.industry"
-            class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
+            class="text-xs bg-green-900/30 text-green-400 px-2 py-0.5 rounded-full"
           >
             {{ cs.industry }}
           </span>
           <span class="text-xs text-gray-400">{{ formatDate(cs.createdAt) }}</span>
         </div>
 
-        <h3 class="font-semibold text-gray-800 mb-2 line-clamp-2">{{ cs.title }}</h3>
+        <h3 class="font-semibold text-white mb-2 line-clamp-2">{{ cs.title }}</h3>
         <p class="text-sm text-gray-500 line-clamp-3 mb-3">{{ excerpt(cs.content) }}</p>
 
         <div class="flex items-center gap-2 flex-wrap mb-3">
           <span
             v-for="robotId in (cs.robotIds || []).slice(0, 3)"
             :key="robotId"
-            class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded"
+            class="text-xs bg-blue-50 text-blue-400 px-2 py-0.5 rounded"
           >
             机器人 #{{ robotId }}
           </span>
           <span v-if="(cs.robotIds || []).length > 3" class="text-xs text-gray-400">+{{ cs.robotIds.length - 3 }}</span>
         </div>
 
-        <div class="flex items-center gap-2 border-t border-gray-50 pt-3">
+        <div class="flex items-center gap-2 border-t border-white/[0.04] pt-3">
           <img
             :src="cs.authorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(cs.authorName)}&background=random`"
             class="w-6 h-6 rounded-full object-cover"
@@ -78,7 +78,7 @@
       <button
         :disabled="currentPage === 0"
         @click="changePage(currentPage - 1)"
-        class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+        class="px-4 py-2 rounded-lg border border-white/[0.06] text-sm disabled:opacity-40 hover:bg-dark-100"
       >
         上一页
       </button>
@@ -86,7 +86,7 @@
       <button
         :disabled="currentPage >= totalPages - 1"
         @click="changePage(currentPage + 1)"
-        class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+        class="px-4 py-2 rounded-lg border border-white/[0.06] text-sm disabled:opacity-40 hover:bg-dark-100"
       >
         下一页
       </button>

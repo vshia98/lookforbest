@@ -1,53 +1,53 @@
 <template>
   <div class="max-w-3xl mx-auto px-4 py-8">
     <div class="mb-6">
-      <router-link to="/reviews" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
+      <router-link to="/reviews" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300">
         ← 返回评测列表
       </router-link>
-      <h1 class="text-2xl font-bold text-gray-800 mt-2">写评测</h1>
+      <h1 class="text-2xl font-bold text-white mt-2">写评测</h1>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
+    <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6 space-y-5">
       <!-- 选择机器人 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">选择机器人 <span class="text-red-500">*</span></label>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">选择机器人 <span class="text-red-500">*</span></label>
         <input
           v-model="robotSearch"
           @input="searchRobots"
           placeholder="搜索机器人名称..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="input-dark"
         />
-        <div v-if="robotResults.length > 0 && !form.robotId" class="mt-1 border border-gray-200 rounded-lg shadow-sm bg-white max-h-48 overflow-y-auto z-10">
+        <div v-if="robotResults.length > 0 && !form.robotId" class="mt-1 border border-white/[0.06] rounded-lg  bg-dark-50 max-h-48 overflow-y-auto z-10">
           <button
             v-for="robot in robotResults"
             :key="robot.id"
             @click="selectRobot(robot)"
-            class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 border-b border-gray-50 last:border-0"
+            class="w-full text-left px-3 py-2 text-sm hover:bg-dark-100 border-b border-white/[0.04] last:border-0"
           >
             <span class="font-medium">{{ robot.name }}</span>
             <span class="text-gray-400 ml-2 text-xs">{{ robot.manufacturer?.name }}</span>
           </button>
         </div>
         <div v-if="selectedRobot" class="mt-2 flex items-center gap-2 text-sm">
-          <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{{ selectedRobot.name }}</span>
+          <span class="bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded">{{ selectedRobot.name }}</span>
           <button @click="clearRobot" class="text-gray-400 hover:text-gray-600 text-xs">✕ 清除</button>
         </div>
       </div>
 
       <!-- 标题 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">标题 <span class="text-red-500">*</span></label>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">标题 <span class="text-red-500">*</span></label>
         <input
           v-model="form.title"
           maxlength="300"
           placeholder="给这篇评测起个标题..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="input-dark"
         />
       </div>
 
       <!-- 评分 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">综合评分 <span class="text-red-500">*</span></label>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">综合评分 <span class="text-red-500">*</span></label>
         <div class="flex gap-2">
           <button
             v-for="star in [1, 2, 3, 4, 5]"
@@ -63,34 +63,34 @@
 
       <!-- 优点 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">优点</label>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">优点</label>
         <textarea
           v-model="form.pros"
           rows="3"
           placeholder="这款机器人有哪些值得称赞的地方？"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          class="input-dark"
         ></textarea>
       </div>
 
       <!-- 缺点 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">缺点</label>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">缺点</label>
         <textarea
           v-model="form.cons"
           rows="3"
           placeholder="有哪些需要改进的地方？"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          class="input-dark"
         ></textarea>
       </div>
 
       <!-- 正文 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1.5">详细评测内容 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal">(支持 Markdown)</span></label>
+        <label class="block text-sm font-medium text-gray-300 mb-1.5">详细评测内容 <span class="text-red-500">*</span> <span class="text-xs text-gray-400 font-normal">(支持 Markdown)</span></label>
         <textarea
           v-model="form.content"
           rows="10"
           placeholder="分享你对这款机器人的详细使用体验、测试结论、实际应用场景等..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono"
+          class="input-dark"
         ></textarea>
       </div>
 
@@ -99,14 +99,14 @@
         <button
           @click="save('draft')"
           :disabled="submitting"
-          class="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          class="px-4 py-2 border border-white/[0.06] rounded-lg text-sm text-gray-600 hover:bg-dark-100 disabled:opacity-50 transition-colors"
         >
           保存草稿
         </button>
         <button
           @click="save('submit')"
           :disabled="submitting"
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg disabled:opacity-50 transition-colors"
+          class="px-4 py-2 bg-primary hover:bg-primary-400 text-[#1a1a1a] text-sm rounded-lg disabled:opacity-50 transition-colors"
         >
           {{ submitting ? '提交中...' : '提交审核' }}
         </button>

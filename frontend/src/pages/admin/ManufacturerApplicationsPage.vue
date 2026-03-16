@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h1 class="text-xl font-semibold text-gray-800 mb-6">厂商申请管理</h1>
+    <h1 class="text-xl font-semibold text-white mb-6">厂商申请管理</h1>
 
     <!-- 状态筛选 -->
     <div class="flex gap-2 mb-4">
       <select
         v-model="statusFilter"
         @change="currentPage = 0; loadData()"
-        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="input-dark"
       >
         <option value="pending">待审核</option>
         <option value="approved">已通过</option>
@@ -21,9 +21,9 @@
     </div>
 
     <!-- 表格 -->
-    <div v-else class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div v-else class="bg-dark-50 rounded-xl border border-white/[0.04]  overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 border-b border-gray-100">
+        <thead class="bg-dark-100 border-b border-white/[0.04]">
           <tr>
             <th class="text-left px-4 py-3 text-gray-500 font-medium">公司名称</th>
             <th class="text-left px-4 py-3 text-gray-500 font-medium">申请人邮箱</th>
@@ -34,22 +34,22 @@
             <th class="text-left px-4 py-3 text-gray-500 font-medium">操作</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody class="divide-y divide-white/[0.04]">
           <tr v-if="items.length === 0">
             <td colspan="7" class="text-center py-10 text-gray-400">暂无数据</td>
           </tr>
           <template v-for="item in items" :key="item.id">
             <tr
-              class="hover:bg-gray-50 cursor-pointer"
+              class="hover:bg-dark-100 cursor-pointer"
               @click="toggleExpand(item.id)"
             >
-              <td class="px-4 py-3 font-medium text-gray-800">
+              <td class="px-4 py-3 font-medium text-white">
                 {{ item.companyName }}
                 <span v-if="item.companyNameEn" class="text-xs text-gray-400 ml-1">{{ item.companyNameEn }}</span>
               </td>
-              <td class="px-4 py-3 text-gray-600">{{ item.user?.email || item.contactEmail }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ item.contactPerson }}</td>
-              <td class="px-4 py-3 text-gray-600">{{ item.country }}</td>
+              <td class="px-4 py-3 text-gray-400">{{ item.user?.email || item.contactEmail }}</td>
+              <td class="px-4 py-3 text-gray-400">{{ item.contactPerson }}</td>
+              <td class="px-4 py-3 text-gray-400">{{ item.country }}</td>
               <td class="px-4 py-3 text-gray-400">{{ formatDate(item.createdAt) }}</td>
               <td class="px-4 py-3">
                 <span :class="statusClass(item.status)" class="inline-block text-xs font-medium px-2 py-0.5 rounded-full">
@@ -61,49 +61,49 @@
                   <button
                     @click="handleApprove(item)"
                     :disabled="actionLoading === item.id"
-                    class="text-xs bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50"
+                    class="text-xs bg-green-900/20 text-green-400 hover:bg-green-900/30 border border-green-800 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50"
                   >通过</button>
                   <button
                     @click="openRejectModal(item)"
                     :disabled="actionLoading === item.id"
-                    class="text-xs bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50"
+                    class="text-xs bg-red-900/20 text-red-400 hover:bg-red-900/30 border border-red-800 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50"
                   >拒绝</button>
                 </div>
                 <span v-else class="text-gray-400 text-xs">—</span>
               </td>
             </tr>
             <!-- 展开详情行 -->
-            <tr v-if="expandedId === item.id" class="bg-blue-50">
+            <tr v-if="expandedId === item.id" class="bg-blue-900/20">
               <td colspan="7" class="px-6 py-4">
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                   <div>
                     <span class="text-gray-500">联系邮箱：</span>
-                    <span class="text-gray-800">{{ item.contactEmail }}</span>
+                    <span class="text-white">{{ item.contactEmail }}</span>
                   </div>
                   <div v-if="item.contactPhone">
                     <span class="text-gray-500">联系电话：</span>
-                    <span class="text-gray-800">{{ item.contactPhone }}</span>
+                    <span class="text-white">{{ item.contactPhone }}</span>
                   </div>
                   <div v-if="item.websiteUrl">
                     <span class="text-gray-500">官网：</span>
-                    <a :href="item.websiteUrl" target="_blank" class="text-blue-600 hover:underline">{{ item.websiteUrl }}</a>
+                    <a :href="item.websiteUrl" target="_blank" class="text-blue-400 hover:underline">{{ item.websiteUrl }}</a>
                   </div>
                   <div v-if="item.businessLicense">
                     <span class="text-gray-500">营业执照：</span>
-                    <a :href="item.businessLicense" target="_blank" class="text-blue-600 hover:underline">查看图片</a>
+                    <a :href="item.businessLicense" target="_blank" class="text-blue-400 hover:underline">查看图片</a>
                   </div>
                   <div v-if="item.manufacturerId">
                     <span class="text-gray-500">认领厂商ID：</span>
-                    <span class="text-gray-800">#{{ item.manufacturerId }}</span>
+                    <span class="text-white">#{{ item.manufacturerId }}</span>
                   </div>
                   <div v-if="item.rejectReason">
                     <span class="text-gray-500">拒绝原因：</span>
-                    <span class="text-red-700">{{ item.rejectReason }}</span>
+                    <span class="text-red-400">{{ item.rejectReason }}</span>
                   </div>
                 </div>
                 <div v-if="item.description" class="mt-3">
                   <p class="text-gray-500 text-sm mb-1">申请说明：</p>
-                  <p class="text-gray-700 text-sm bg-white rounded-lg px-3 py-2 border border-gray-200">{{ item.description }}</p>
+                  <p class="text-gray-300 text-sm bg-dark-50 rounded-lg px-3 py-2 border border-white/[0.06]">{{ item.description }}</p>
                 </div>
               </td>
             </tr>
@@ -112,19 +112,19 @@
       </table>
 
       <!-- 分页 -->
-      <div v-if="totalPages > 1" class="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+      <div v-if="totalPages > 1" class="px-4 py-3 border-t border-white/[0.04] flex items-center justify-between">
         <p class="text-sm text-gray-500">共 {{ total }} 条</p>
         <div class="flex gap-2">
           <button
             @click="changePage(currentPage - 1)"
             :disabled="currentPage === 0"
-            class="text-sm px-3 py-1 border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            class="text-sm px-3 py-1 border border-white/[0.06] rounded-lg disabled:opacity-40 hover:bg-dark-100"
           >上一页</button>
-          <span class="text-sm px-3 py-1 text-gray-600">{{ currentPage + 1 }} / {{ totalPages }}</span>
+          <span class="text-sm px-3 py-1 text-gray-400">{{ currentPage + 1 }} / {{ totalPages }}</span>
           <button
             @click="changePage(currentPage + 1)"
             :disabled="currentPage >= totalPages - 1"
-            class="text-sm px-3 py-1 border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            class="text-sm px-3 py-1 border border-white/[0.06] rounded-lg disabled:opacity-40 hover:bg-dark-100"
           >下一页</button>
         </div>
       </div>
@@ -132,19 +132,19 @@
 
     <!-- 拒绝弹窗 -->
     <div v-if="rejectModal.visible" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-        <h3 class="text-base font-semibold text-gray-800 mb-4">拒绝申请</h3>
-        <p class="text-sm text-gray-600 mb-3">公司：{{ rejectModal.item?.companyName }}</p>
+      <div class="bg-dark-50 rounded-xl shadow-lg w-full max-w-md p-6">
+        <h3 class="text-base font-semibold text-white mb-4">拒绝申请</h3>
+        <p class="text-sm text-gray-400 mb-3">公司：{{ rejectModal.item?.companyName }}</p>
         <textarea
           v-model="rejectModal.reason"
           rows="4"
           placeholder="请填写拒绝原因（将通知申请人）"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none mb-4"
+          class="input-dark"
         />
         <div class="flex gap-3 justify-end">
           <button
             @click="rejectModal.visible = false"
-            class="text-sm px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50"
+            class="text-sm px-4 py-2 border border-white/[0.06] rounded-lg hover:bg-dark-100"
           >取消</button>
           <button
             @click="handleReject"
@@ -240,11 +240,11 @@ function statusLabel(status: string): string {
 
 function statusClass(status: string): string {
   const map: Record<string, string> = {
-    pending: 'bg-yellow-50 text-yellow-700',
-    approved: 'bg-green-50 text-green-700',
-    rejected: 'bg-red-50 text-red-700'
+    pending: 'bg-yellow-900/20 text-yellow-400',
+    approved: 'bg-green-900/20 text-green-400',
+    rejected: 'bg-red-900/20 text-red-400'
   }
-  return map[status] ?? 'bg-gray-50 text-gray-700'
+  return map[status] ?? 'bg-dark-100 text-gray-300'
 }
 
 function formatDate(dateStr: string): string {

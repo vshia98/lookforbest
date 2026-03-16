@@ -10,9 +10,9 @@
         class="block cursor-pointer"
         @click="handleClick(ads[0])"
       >
-        <div v-if="ads[0].adType === 'text'" class="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-100 rounded-xl px-6 py-4 flex items-center justify-between">
-          <span class="text-sm text-gray-700 font-medium">{{ ads[0].title }}</span>
-          <span class="text-xs text-primary-500 ml-4 shrink-0">广告 →</span>
+        <div v-if="ads[0].adType === 'text'" class="bg-gradient-to-r from-primary/5 to-accent-blue/5 border border-primary/10 rounded-xl px-6 py-4 flex items-center justify-between">
+          <span class="text-sm text-gray-300 font-medium">{{ ads[0].title }}</span>
+          <span class="text-xs text-primary ml-4 shrink-0">广告 →</span>
         </div>
         <div v-else class="relative">
           <img
@@ -22,7 +22,7 @@
             class="w-full object-cover rounded-xl"
             style="max-height: 200px;"
           />
-          <div v-else class="bg-gradient-to-r from-primary-500 to-blue-600 rounded-xl px-6 py-8 text-white text-center">
+          <div v-else class="bg-gradient-to-r from-primary/20 to-accent-blue/20 rounded-xl px-6 py-8 text-white text-center">
             <p class="font-semibold text-lg">{{ ads[0].title }}</p>
           </div>
           <span class="absolute top-2 right-2 bg-black/40 text-white text-xs px-2 py-0.5 rounded">广告</span>
@@ -51,9 +51,9 @@
               class="block cursor-pointer"
               @click="handleClick(ad)"
             >
-              <div v-if="ad.adType === 'text'" class="bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-100 rounded-xl px-6 py-4 flex items-center justify-between">
-                <span class="text-sm text-gray-700 font-medium">{{ ad.title }}</span>
-                <span class="text-xs text-primary-500 ml-4 shrink-0">广告 →</span>
+              <div v-if="ad.adType === 'text'" class="bg-gradient-to-r from-primary/5 to-accent-blue/5 border border-primary/10 rounded-xl px-6 py-4 flex items-center justify-between">
+                <span class="text-sm text-gray-300 font-medium">{{ ad.title }}</span>
+                <span class="text-xs text-primary ml-4 shrink-0">广告 →</span>
               </div>
               <div v-else class="relative">
                 <img
@@ -63,7 +63,7 @@
                   class="w-full object-cover rounded-xl"
                   style="max-height: 200px;"
                 />
-                <div v-else class="bg-gradient-to-r from-primary-500 to-blue-600 rounded-xl px-6 py-8 text-white text-center">
+                <div v-else class="bg-gradient-to-r from-primary/20 to-accent-blue/20 rounded-xl px-6 py-8 text-white text-center">
                   <p class="font-semibold text-lg">{{ ad.title }}</p>
                 </div>
                 <span class="absolute top-2 right-2 bg-black/40 text-white text-xs px-2 py-0.5 rounded">广告</span>

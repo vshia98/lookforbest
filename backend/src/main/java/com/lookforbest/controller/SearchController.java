@@ -66,7 +66,7 @@ public class SearchController {
     }
 
     @PostMapping("/sync")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @Operation(summary = "触发全量同步（管理员）", description = "将 MySQL 机器人数据全量同步到 Elasticsearch")
     public ApiResponse<String> fullSync() {
         syncService.fullSync();

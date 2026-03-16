@@ -12,9 +12,9 @@
       </div>
     </div>
 
-    <div v-else class="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100" style="height: 420px;">
-      <!-- @ts-ignore: model-viewer 自定义元素 -->
-      <model-viewer
+    <div v-else class="relative rounded-2xl overflow-hidden bg-dark-100 border border-white/[0.06]" style="height: 420px;">
+      <component :is="ModelViewerComponent"
+        v-if="ModelViewerComponent"
         :src="modelData.modelUrl"
         :poster="modelData.posterUrl || undefined"
         :ios-src="modelData.arUrl || undefined"
@@ -41,8 +41,8 @@
           >
             <span class="hotspot-dot">{{ idx + 1 }}</span>
             <div v-if="activeAnnotation === idx" class="hotspot-label">
-              <p class="font-semibold text-xs text-gray-800">{{ ann.label }}</p>
-              <p v-if="ann.description" class="text-xs text-gray-500 mt-0.5">{{ ann.description }}</p>
+              <p class="font-semibold text-xs text-white">{{ ann.label }}</p>
+              <p v-if="ann.description" class="text-xs text-gray-400 mt-0.5">{{ ann.description }}</p>
             </div>
           </button>
         </template>
@@ -56,23 +56,14 @@
         <div slot="progress-bar" class="progress-bar-wrapper">
           <div class="progress-bar-inner" />
         </div>
-      </model-viewer>
+      </component>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import axios from 'axios'
-
-// 最小类型声明，避免 TypeScript 报错
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'model-viewer': any
-    }
-  }
-}
 
 interface Annotation {
   position: string
@@ -100,6 +91,8 @@ const modelData = ref<RobotModelData | null>(null)
 const loading = ref(true)
 const activeAnnotation = ref<number | null>(null)
 
+const ModelViewerComponent = ref<any>(null)
+
 const parsedAnnotations = computed<Annotation[]>(() => {
   if (!modelData.value?.annotations) return []
   try {
@@ -111,6 +104,8 @@ const parsedAnnotations = computed<Annotation[]>(() => {
 })
 
 onMounted(async () => {
+  await nextTick()
+  ModelViewerComponent.value = (window as any).modelViewer
   try {
     const res = await axios.get(`/api/v1/robots/${props.robotId}/model`)
     modelData.value = res.data?.data ?? null
@@ -132,8 +127,8 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   height: 200px;
-  background: #f9fafb;
-  border: 1px solid #f3f4f6;
+  background: #202228;
+  border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 1rem;
 }
 
@@ -155,11 +150,11 @@ onMounted(async () => {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #3b82f6;
-  color: white;
+  background: #00FFD1;
+  color: #1F1F23;
   font-size: 12px;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.4);
+  box-shadow: 0 0 12px rgba(0, 255, 209, 0.4);
   transition: transform 0.15s;
 }
 
@@ -172,12 +167,12 @@ onMounted(async () => {
   left: 32px;
   top: 50%;
   transform: translateY(-50%);
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #2C2D36;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.5rem;
   padding: 6px 10px;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   z-index: 10;
 }
 
@@ -185,26 +180,27 @@ onMounted(async () => {
   position: absolute;
   bottom: 12px;
   right: 12px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #2C2D36;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.75rem;
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: #374151;
+  color: #00FFD1;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: background 0.15s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s;
 }
 
 .ar-button:hover {
-  background: #f3f4f6;
+  background: #33343D;
+  box-shadow: 0 0 20px rgba(0, 255, 209, 0.15);
 }
 
 .progress-bar-wrapper {
   width: 100%;
   height: 3px;
-  background: #e5e7eb;
+  background: #33343D;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -212,7 +208,7 @@ onMounted(async () => {
 
 .progress-bar-inner {
   height: 100%;
-  background: #3b82f6;
+  background: #00FFD1;
   transition: width 0.3s;
 }
 </style>

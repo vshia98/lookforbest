@@ -11,11 +11,11 @@
         @focus="onFocus"
         type="text"
         :placeholder="placeholder"
-        class="w-full pl-4 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        class="input-dark w-full pl-4 pr-10"
       />
       <button
         @click="submit"
-        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
       >
         🔍
       </button>
@@ -24,33 +24,33 @@
     <!-- 联想下拉 -->
     <div
       v-if="showDropdown && (suggestions.length > 0 || hotKeywords.length > 0)"
-      class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
+      class="absolute left-0 right-0 top-full mt-1 bg-dark-50 border border-white/[0.06] rounded-xl shadow-xl z-50 max-h-64 overflow-y-auto backdrop-blur-xl"
     >
       <!-- 联想词 -->
       <template v-if="suggestions.length > 0">
-        <div class="px-3 py-1.5 text-xs text-gray-400 font-medium border-b border-gray-100">联想搜索</div>
+        <div class="px-3 py-1.5 text-xs text-gray-500 font-medium border-b border-white/[0.04]">联想搜索</div>
         <button
           v-for="(item, idx) in suggestions"
           :key="'s' + idx"
           @mousedown.prevent="selectSuggestion(item)"
-          class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2"
-          :class="{ 'bg-primary-50 text-primary-700': activeIndex === idx }"
+          class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/[0.04] hover:text-primary flex items-center gap-2 transition-colors"
+          :class="{ 'bg-primary/10 text-primary': activeIndex === idx }"
         >
-          <span class="text-gray-400 text-xs">🔍</span>
+          <span class="text-gray-600 text-xs">🔍</span>
           <span v-html="highlightMatch(item)" />
         </button>
       </template>
 
-      <!-- 热搜词（未输入时显示） -->
+      <!-- 热搜词 -->
       <template v-else-if="!query && hotKeywords.length > 0">
-        <div class="px-3 py-1.5 text-xs text-gray-400 font-medium border-b border-gray-100">热门搜索</div>
+        <div class="px-3 py-1.5 text-xs text-gray-500 font-medium border-b border-white/[0.04]">热门搜索</div>
         <button
           v-for="(kw, idx) in hotKeywords"
           :key="'h' + idx"
           @mousedown.prevent="selectSuggestion(kw)"
-          class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2"
+          class="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/[0.04] hover:text-primary flex items-center gap-2 transition-colors"
         >
-          <span class="text-orange-400 text-xs">🔥</span>
+          <span class="text-accent-orange text-xs">🔥</span>
           {{ kw }}
         </button>
       </template>
@@ -163,6 +163,6 @@ function onOutsideClick(e: MouseEvent) {
 function highlightMatch(text: string): string {
   if (!query.value) return text
   const escaped = query.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark class="bg-yellow-100 text-yellow-900 rounded px-0.5">$1</mark>')
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark class="bg-primary/20 text-primary rounded px-0.5">$1</mark>')
 }
 </script>

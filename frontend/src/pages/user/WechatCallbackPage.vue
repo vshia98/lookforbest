@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="min-h-screen flex items-center justify-center bg-dark">
     <div class="text-center">
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <div v-else class="text-gray-500 text-sm">正在处理微信登录…</div>

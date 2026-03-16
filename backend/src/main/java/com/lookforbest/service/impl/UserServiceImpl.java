@@ -49,10 +49,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public AuthTokenResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BusinessException(401, "邮箱或密码错误"));
+        String identity = request.getUsernameOrEmail();
+        // 包含 @ 则按邮箱查，否则按用户名查
+        User user = (identity.contains("@")
+                ? userRepository.findByEmail(identity)
+                : userRepository.findByUsername(identity))
+                .orElseThrow(() -> new BusinessException(401, "账号或密码错误"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new BusinessException(401, "邮箱或密码错误");
+            throw new BusinessException(401, "账号或密码错误");
         }
         if (!user.getIsActive()) {
             throw new BusinessException(403, "账号已被禁用");

@@ -18,7 +18,7 @@ public interface SearchHotKeywordRepository extends JpaRepository<SearchHotKeywo
     List<SearchHotKeyword> findTop10ByOrderBySearchCountDesc();
 
     @Modifying
-    @Query("""
+    @Query(value = """
         INSERT INTO search_hot_keywords (keyword, search_count, last_searched_at, created_at, updated_at)
         VALUES (:keyword, 1, NOW(), NOW(), NOW())
         ON DUPLICATE KEY UPDATE

@@ -52,13 +52,13 @@ public class InquiryController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails user) {
         boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPERADMIN"));
         return ApiResponse.ok(inquiryService.getInquiry(id, user.getUsername(), isAdmin));
     }
 
     /** 管理员：获取所有询价列表 */
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @Operation(summary = "管理员获取所有询价")
     public ApiResponse<PagedResponse<InquiryDTO>> adminList(
             @RequestParam(defaultValue = "0") int page,
@@ -68,7 +68,7 @@ public class InquiryController {
 
     /** 管理员：回复询价 */
     @PostMapping("/admin/{id}/reply")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @Operation(summary = "管理员回复询价")
     public ApiResponse<InquiryDTO> adminReply(
             @PathVariable Long id,
@@ -78,7 +78,7 @@ public class InquiryController {
 
     /** 管理员：更新询价状态 */
     @PatchMapping("/admin/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @Operation(summary = "管理员更新询价状态")
     public ApiResponse<InquiryDTO> adminUpdateStatus(
             @PathVariable Long id,

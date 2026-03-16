@@ -108,7 +108,7 @@ class AuthService {
 
   /// 退出登录
   Future<void> logout() async {
-    await _googleSignIn.signOut().catchError((_) {});
+    await _googleSignIn.signOut().catchError((_) => null);
     await _storage.clearTokens();
   }
 

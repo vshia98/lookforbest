@@ -15,12 +15,17 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +38,7 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final RateLimitFilter rateLimitFilter;
+    private final ScrapingDetectorFilter scrapingDetectorFilter;
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
@@ -61,6 +67,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/case-studies/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/manufacturers/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/settings").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/domains/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/compare").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/compare/**").permitAll()
@@ -69,6 +76,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/ads").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/ads/*/click").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/analytics/track").permitAll()
+                .requestMatchers("/api/v1/chat/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/sitemap.xml", "/robots.txt").permitAll()
                 .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
@@ -76,8 +84,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/manufacturer-portal/**").authenticated()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            // 未认证访问受保护资源返回 401，而非默认的 403
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            )
+            // 顺序：JWT解析 → 限流 → 爬虫检测（爬虫检测需要在JWT解析后才能识别管理员）
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(rateLimitFilter, JwtAuthFilter.class)
+            .addFilterAfter(scrapingDetectorFilter, RateLimitFilter.class);
 
         return http.build();
     }
@@ -92,6 +106,21 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    /** 禁止 Spring Boot 把这两个过滤器自动注册为独立 servlet 过滤器，避免双重执行 */
+    @Bean
+    public FilterRegistrationBean<RateLimitFilter> rateLimitFilterRegistration(RateLimitFilter filter) {
+        FilterRegistrationBean<RateLimitFilter> bean = new FilterRegistrationBean<>(filter);
+        bean.setEnabled(false);
+        return bean;
+    }
+
+    @Bean
+    public FilterRegistrationBean<ScrapingDetectorFilter> scrapingDetectorFilterRegistration(ScrapingDetectorFilter filter) {
+        FilterRegistrationBean<ScrapingDetectorFilter> bean = new FilterRegistrationBean<>(filter);
+        bean.setEnabled(false);
+        return bean;
     }
 
     @Bean

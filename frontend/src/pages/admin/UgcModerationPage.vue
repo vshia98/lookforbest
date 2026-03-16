@@ -1,24 +1,24 @@
 <template>
   <div>
-    <h1 class="text-xl font-semibold text-gray-800 mb-6">内容审核</h1>
+    <h1 class="text-xl font-semibold text-white mb-6">内容审核</h1>
 
     <!-- 选项卡 -->
-    <div class="flex gap-1 bg-gray-100 rounded-lg p-1 w-fit mb-6">
+    <div class="flex gap-1 bg-dark-100 rounded-lg p-1 w-fit mb-6">
       <button
         @click="activeTab = 'reviews'"
         class="px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-        :class="activeTab === 'reviews' ? 'bg-white shadow text-gray-800' : 'text-gray-500 hover:text-gray-700'"
+        :class="activeTab === 'reviews' ? 'bg-dark-50 shadow text-white' : 'text-gray-500 hover:text-gray-300'"
       >
         评测审核
-        <span v-if="reviewPendingCount > 0" class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ reviewPendingCount }}</span>
+        <span v-if="reviewPendingCount > 0" class="ml-1.5 bg-red-900/200 text-white text-xs rounded-full px-1.5 py-0.5">{{ reviewPendingCount }}</span>
       </button>
       <button
         @click="activeTab = 'cases'"
         class="px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-        :class="activeTab === 'cases' ? 'bg-white shadow text-gray-800' : 'text-gray-500 hover:text-gray-700'"
+        :class="activeTab === 'cases' ? 'bg-dark-50 shadow text-white' : 'text-gray-500 hover:text-gray-300'"
       >
         案例审核
-        <span v-if="casePendingCount > 0" class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ casePendingCount }}</span>
+        <span v-if="casePendingCount > 0" class="ml-1.5 bg-red-900/200 text-white text-xs rounded-full px-1.5 py-0.5">{{ casePendingCount }}</span>
       </button>
     </div>
 
@@ -27,7 +27,7 @@
       <select
         v-model="statusFilter"
         @change="currentPage = 0; loadData()"
-        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="input-dark"
       >
         <option value="pending_review">待审核</option>
         <option value="published">已发布</option>
@@ -42,9 +42,9 @@
     </div>
 
     <!-- 评测表格 -->
-    <div v-else-if="activeTab === 'reviews'" class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div v-else-if="activeTab === 'reviews'" class="bg-dark-50 rounded-xl border border-white/[0.04]  overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 border-b border-gray-100">
+        <thead class="bg-dark-100 border-b border-white/[0.04]">
           <tr>
             <th class="text-left px-4 py-3 text-gray-500 font-medium">标题</th>
             <th class="text-left px-4 py-3 text-gray-500 font-medium">作者</th>
@@ -55,16 +55,16 @@
             <th class="text-left px-4 py-3 text-gray-500 font-medium">操作</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody class="divide-y divide-white/[0.04]">
           <tr v-if="items.length === 0">
             <td colspan="7" class="text-center py-10 text-gray-400">暂无数据</td>
           </tr>
-          <tr v-for="item in items" :key="item.id" class="hover:bg-gray-50 transition-colors">
+          <tr v-for="item in items" :key="item.id" class="hover:bg-dark-100 transition-colors">
             <td class="px-4 py-3">
-              <a :href="`/reviews/${item.id}`" target="_blank" class="text-blue-600 hover:underline line-clamp-1 max-w-[200px] block">{{ item.title }}</a>
+              <a :href="`/reviews/${item.id}`" target="_blank" class="text-blue-400 hover:underline line-clamp-1 max-w-[200px] block">{{ item.title }}</a>
             </td>
-            <td class="px-4 py-3 text-gray-600">{{ item.authorName }}</td>
-            <td class="px-4 py-3 text-gray-600">{{ item.robotName }}</td>
+            <td class="px-4 py-3 text-gray-400">{{ item.authorName }}</td>
+            <td class="px-4 py-3 text-gray-400">{{ item.robotName }}</td>
             <td class="px-4 py-3">
               <span class="text-yellow-400">{{ '★'.repeat(item.rating) }}</span>
             </td>
@@ -77,14 +77,14 @@
                 <button
                   v-if="item.status === 'pending_review'"
                   @click="publishReview(item.id)"
-                  class="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition-colors"
+                  class="text-xs bg-green-900/200 hover:bg-green-600 text-[#1a1a1a] px-2 py-1 rounded transition-colors"
                 >
                   发布
                 </button>
                 <button
                   v-if="item.status === 'pending_review'"
                   @click="openRejectModal('review', item.id)"
-                  class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors"
+                  class="text-xs bg-red-900/200 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors"
                 >
                   拒绝
                 </button>
@@ -96,9 +96,9 @@
     </div>
 
     <!-- 案例表格 -->
-    <div v-else class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div v-else class="bg-dark-50 rounded-xl border border-white/[0.04]  overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 border-b border-gray-100">
+        <thead class="bg-dark-100 border-b border-white/[0.04]">
           <tr>
             <th class="text-left px-4 py-3 text-gray-500 font-medium">标题</th>
             <th class="text-left px-4 py-3 text-gray-500 font-medium">作者</th>
@@ -108,15 +108,15 @@
             <th class="text-left px-4 py-3 text-gray-500 font-medium">操作</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody class="divide-y divide-white/[0.04]">
           <tr v-if="items.length === 0">
             <td colspan="6" class="text-center py-10 text-gray-400">暂无数据</td>
           </tr>
-          <tr v-for="item in items" :key="item.id" class="hover:bg-gray-50 transition-colors">
+          <tr v-for="item in items" :key="item.id" class="hover:bg-dark-100 transition-colors">
             <td class="px-4 py-3">
-              <a :href="`/case-studies/${item.id}`" target="_blank" class="text-blue-600 hover:underline line-clamp-1 max-w-[200px] block">{{ item.title }}</a>
+              <a :href="`/case-studies/${item.id}`" target="_blank" class="text-blue-400 hover:underline line-clamp-1 max-w-[200px] block">{{ item.title }}</a>
             </td>
-            <td class="px-4 py-3 text-gray-600">{{ item.authorName }}</td>
+            <td class="px-4 py-3 text-gray-400">{{ item.authorName }}</td>
             <td class="px-4 py-3 text-gray-500">{{ item.industry || '-' }}</td>
             <td class="px-4 py-3">
               <span class="px-2 py-0.5 rounded-full text-xs" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
@@ -127,14 +127,14 @@
                 <button
                   v-if="item.status === 'pending_review'"
                   @click="publishCase(item.id)"
-                  class="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition-colors"
+                  class="text-xs bg-green-900/200 hover:bg-green-600 text-[#1a1a1a] px-2 py-1 rounded transition-colors"
                 >
                   发布
                 </button>
                 <button
                   v-if="item.status === 'pending_review'"
                   @click="openRejectModal('case', item.id)"
-                  class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors"
+                  class="text-xs bg-red-900/200 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors"
                 >
                   拒绝
                 </button>
@@ -150,7 +150,7 @@
       <button
         :disabled="currentPage === 0"
         @click="changePage(currentPage - 1)"
-        class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+        class="px-4 py-2 rounded-lg border border-white/[0.06] text-sm disabled:opacity-40 hover:bg-dark-100"
       >
         上一页
       </button>
@@ -158,7 +158,7 @@
       <button
         :disabled="currentPage >= totalPages - 1"
         @click="changePage(currentPage + 1)"
-        class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+        class="px-4 py-2 rounded-lg border border-white/[0.06] text-sm disabled:opacity-40 hover:bg-dark-100"
       >
         下一页
       </button>
@@ -166,17 +166,17 @@
 
     <!-- 拒绝原因弹窗 -->
     <div v-if="rejectModal.show" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">填写拒绝原因</h3>
+      <div class="bg-dark-50 rounded-xl shadow-xl w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">填写拒绝原因</h3>
         <textarea
           v-model="rejectModal.reason"
           rows="4"
           placeholder="请填写拒绝原因，将会通知作者..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          class="input-dark"
         ></textarea>
         <div class="flex justify-end gap-3 mt-4">
-          <button @click="rejectModal.show = false" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">取消</button>
-          <button @click="confirmReject" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition-colors">确认拒绝</button>
+
+          <button @click="confirmReject" class="px-4 py-2 bg-red-900/200 hover:bg-red-600 text-white text-sm rounded-lg transition-colors">确认拒绝</button>
         </div>
       </div>
     </div>
@@ -215,10 +215,10 @@ function statusLabel(s: string) {
 
 function statusClass(s: string) {
   const map: Record<string, string> = {
-    draft: 'bg-gray-100 text-gray-600',
-    pending_review: 'bg-yellow-100 text-yellow-700',
-    published: 'bg-green-100 text-green-700',
-    rejected: 'bg-red-100 text-red-600'
+    draft: 'bg-dark-100 text-gray-400',
+    pending_review: 'bg-yellow-900/30 text-yellow-400',
+    published: 'bg-green-900/30 text-green-400',
+    rejected: 'bg-red-900/30 text-red-600'
   }
   return map[s] || ''
 }

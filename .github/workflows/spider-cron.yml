@@ -43,7 +43,10 @@ jobs:
 
       - name: 初始化数据库
         run: |
-          mysql -h 127.0.0.1 -u lookforbest -plookforbest lookforbest < backend/src/main/resources/db/init.sql
+          for f in $(ls backend/src/main/resources/db/migration/V*.sql | sort -V); do
+            echo "执行迁移: $f"
+            mysql -h 127.0.0.1 -u lookforbest -plookforbest lookforbest < "$f"
+          done
 
       - name: 安装 Python 依赖
         run: |

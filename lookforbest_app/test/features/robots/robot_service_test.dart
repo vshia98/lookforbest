@@ -4,7 +4,6 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:lookforbest_app/features/robots/data/robot_service.dart';
 import 'package:lookforbest_app/features/robots/domain/robot.dart';
-import 'package:lookforbest_app/core/network/api_response.dart';
 
 import 'robot_service_test.mocks.dart';
 

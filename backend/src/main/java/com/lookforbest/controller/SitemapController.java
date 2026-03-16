@@ -1,5 +1,6 @@
 package com.lookforbest.controller;
 
+import com.lookforbest.entity.Robot;
 import com.lookforbest.repository.RobotCategoryRepository;
 import com.lookforbest.repository.RobotRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,12 +45,11 @@ public class SitemapController {
             appendUrl(xml, baseUrl + "/robots?categoryId=" + cat.getId(), "0.7", "weekly", today)
         );
 
-        // 机器人详情页
-        List<Object[]> slugDates = robotRepository.findAllSlugAndUpdatedAt();
+        // 机器人详情页（lastmod 统一用当天，避免暴露每条记录的更新时间）
+        List<Object[]> slugDates = robotRepository.findAllSlugAndUpdatedAt(Robot.RobotStatus.active);
         for (Object[] row : slugDates) {
             String slug = (String) row[0];
-            String lastmod = row[1] != null ? row[1].toString().substring(0, 10) : today;
-            appendUrl(xml, baseUrl + "/robots/" + slug, "0.8", "weekly", lastmod);
+            appendUrl(xml, baseUrl + "/robots/" + slug, "0.8", "weekly", today);
         }
 
         xml.append("</urlset>");
@@ -62,6 +62,9 @@ public class SitemapController {
         String content = "User-agent: *\n" +
                 "Allow: /\n" +
                 "Disallow: /api/\n" +
+                "Disallow: /actuator/\n" +
+                "Disallow: /swagger-ui\n" +
+                "Disallow: /api-docs\n" +
                 "Disallow: /admin/\n" +
                 "Disallow: /login\n" +
                 "Disallow: /register\n\n" +

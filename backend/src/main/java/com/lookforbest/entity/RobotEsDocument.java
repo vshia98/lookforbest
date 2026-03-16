@@ -120,7 +120,7 @@ public class RobotEsDocument {
                 .reachMm(robot.getReachMm())
                 .dof(robot.getDof() != null ? (int) robot.getDof() : null)
                 .weightKg(robot.getWeightKg())
-                .priceRange(robot.getPriceRange() != null ? robot.getPriceRange().name() : null)
+                .priceRange(robot.getPriceRange())
                 .has3dModel(robot.getHas3dModel())
                 .viewCount(robot.getViewCount())
                 .favoriteCount(robot.getFavoriteCount())

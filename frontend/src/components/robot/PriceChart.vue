@@ -1,17 +1,17 @@
 <template>
-  <div class="bg-white rounded-xl border border-gray-100 p-5">
+  <div class="bg-dark-50 rounded-xl border border-white/[0.04] p-5">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-semibold text-gray-800">价格趋势（近90天）</h3>
+      <h3 class="font-semibold text-white">价格趋势（近90天）</h3>
       <div v-if="latestPrice" class="text-right">
-        <div class="text-2xl font-bold text-blue-600">¥{{ latestPrice.toLocaleString() }}</div>
-        <div v-if="priceChange !== null" class="text-sm" :class="priceChange <= 0 ? 'text-green-600' : 'text-red-500'">
+        <div class="text-2xl font-bold text-accent-gold">¥{{ latestPrice.toLocaleString() }}</div>
+        <div v-if="priceChange !== null" class="text-sm" :class="priceChange <= 0 ? 'text-primary' : 'text-accent-red'">
           {{ priceChange <= 0 ? '↓' : '↑' }} {{ Math.abs(priceChange).toFixed(1) }}%
         </div>
       </div>
     </div>
 
     <!-- 无数据 -->
-    <div v-if="chartData.length === 0" class="h-40 flex items-center justify-center text-gray-400 text-sm bg-gray-50 rounded-lg">
+    <div v-if="chartData.length === 0" class="h-40 flex items-center justify-center text-gray-500 text-sm bg-dark-100 rounded-lg border border-white/[0.04]">
       暂无价格历史数据
     </div>
 
@@ -19,25 +19,25 @@
     <canvas v-else ref="canvas" class="w-full" height="140" />
 
     <!-- 降价提醒 -->
-    <div class="mt-4 pt-4 border-t border-gray-100">
+    <div class="mt-4 pt-4 border-t border-white/[0.04]">
       <div v-if="!alertSet" class="flex items-center gap-2">
         <input
           v-model="alertPriceInput"
           type="number"
           placeholder="目标价格（元）"
-          class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-400"
+          class="input-dark flex-1"
         />
         <button
           @click="setAlert"
           :disabled="!alertPriceInput"
-          class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-40 transition"
+          class="px-4 py-2 bg-primary text-gray-900 text-sm font-medium rounded-lg hover:bg-primary-400 disabled:opacity-40 transition-all"
         >
           设置降价提醒
         </button>
       </div>
       <div v-else class="flex items-center justify-between text-sm">
-        <span class="text-green-600">✓ 已设置降价提醒：低于 ¥{{ alertPrice }} 通知我</span>
-        <button @click="cancelAlert" class="text-gray-400 hover:text-red-500 transition">取消</button>
+        <span class="text-primary">✓ 已设置降价提醒：低于 ¥{{ alertPrice }} 通知我</span>
+        <button @click="cancelAlert" class="text-gray-500 hover:text-accent-red transition-colors">取消</button>
       </div>
     </div>
   </div>
@@ -116,20 +116,20 @@ function drawChart() {
   const y = (p: number) => pad.top + innerH - ((p - minP) / (maxP - minP)) * innerH
 
   // Grid lines
-  ctx.strokeStyle = '#f3f4f6'
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)'
   ctx.lineWidth = 1
   for (let i = 0; i <= 4; i++) {
     const yy = pad.top + (i / 4) * innerH
     ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(W - pad.right, yy); ctx.stroke()
     const label = (maxP - (i / 4) * (maxP - minP)).toFixed(0)
-    ctx.fillStyle = '#9ca3af'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right'
+    ctx.fillStyle = '#6b7280'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right'
     ctx.fillText('¥' + label, pad.left - 4, yy + 4)
   }
 
   // Area fill
   const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + innerH)
-  grad.addColorStop(0, 'rgba(59,130,246,0.15)')
-  grad.addColorStop(1, 'rgba(59,130,246,0)')
+  grad.addColorStop(0, 'rgba(0, 255, 209, 0.15)')
+  grad.addColorStop(1, 'rgba(0, 255, 209, 0)')
   ctx.beginPath()
   ctx.moveTo(x(0), y(prices[0]))
   for (let i = 1; i < prices.length; i++) ctx.lineTo(x(i), y(prices[i]))
@@ -139,21 +139,28 @@ function drawChart() {
   ctx.fillStyle = grad; ctx.fill()
 
   // Line
-  ctx.beginPath(); ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.lineJoin = 'round'
+  ctx.beginPath(); ctx.strokeStyle = '#00FFD1'; ctx.lineWidth = 2; ctx.lineJoin = 'round'
+  ctx.moveTo(x(0), y(prices[0]))
+  for (let i = 1; i < prices.length; i++) ctx.lineTo(x(i), y(prices[i]))
+  ctx.stroke()
+
+  // Glow on line
+  ctx.beginPath(); ctx.strokeStyle = 'rgba(0, 255, 209, 0.3)'; ctx.lineWidth = 6; ctx.lineJoin = 'round'
   ctx.moveTo(x(0), y(prices[0]))
   for (let i = 1; i < prices.length; i++) ctx.lineTo(x(i), y(prices[i]))
   ctx.stroke()
 
   // Dots on first and last
   for (const idx of [0, prices.length - 1]) {
-    ctx.beginPath(); ctx.arc(x(idx), y(prices[idx]), 4, 0, Math.PI * 2)
-    ctx.fillStyle = '#3b82f6'; ctx.fill()
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x(idx), y(prices[idx]), 2, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(x(idx), y(prices[idx]), 5, 0, Math.PI * 2)
+    ctx.fillStyle = '#00FFD1'; ctx.fill()
+    ctx.beginPath(); ctx.arc(x(idx), y(prices[idx]), 2.5, 0, Math.PI * 2)
+    ctx.fillStyle = '#1F1F23'; ctx.fill()
   }
 
   // X axis labels
   if (chartData.value.length >= 2) {
-    ctx.fillStyle = '#9ca3af'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left'
+    ctx.fillStyle = '#6b7280'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left'
     const firstDate = new Date(chartData.value[0].recordedAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
     const lastDate = new Date(chartData.value.at(-1)!.recordedAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
     ctx.fillText(firstDate, pad.left, H - 4)

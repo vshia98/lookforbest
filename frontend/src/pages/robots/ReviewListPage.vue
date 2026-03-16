@@ -2,12 +2,12 @@
   <div class="max-w-7xl mx-auto px-4 py-8">
     <div class="mb-6 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">机器人评测</h1>
+        <h1 class="text-2xl font-bold text-white">机器人评测</h1>
         <p class="text-gray-500 mt-1">共 {{ total }} 篇评测</p>
       </div>
       <router-link
         to="/reviews/create"
-        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        class="inline-flex items-center gap-2 bg-primary hover:bg-primary-400 text-[#1a1a1a] px-4 py-2 rounded-lg text-sm font-medium transition-colors"
       >
         ✍️ 写评测
       </router-link>
@@ -18,7 +18,7 @@
       <button
         @click="selectRating(null)"
         class="px-4 py-1.5 rounded-full text-sm border transition-colors"
-        :class="selectedRating === null ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-200 text-gray-600 hover:border-blue-300'"
+        :class="selectedRating === null ? 'bg-primary text-[#1a1a1a] border-primary' : 'border-white/[0.06] text-gray-400 hover:border-primary/40'"
       >
         全部
       </button>
@@ -27,7 +27,7 @@
         :key="r"
         @click="selectRating(r)"
         class="px-4 py-1.5 rounded-full text-sm border transition-colors"
-        :class="selectedRating === r ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-200 text-gray-600 hover:border-blue-300'"
+        :class="selectedRating === r ? 'bg-primary text-[#1a1a1a] border-primary' : 'border-white/[0.06] text-gray-400 hover:border-primary/40'"
       >
         {{ '★'.repeat(r) }}{{ '☆'.repeat(5 - r) }}
       </button>
@@ -35,7 +35,7 @@
 
     <!-- 加载状态 -->
     <div v-if="loading" class="flex justify-center py-20">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
 
     <!-- 空状态 -->
@@ -51,7 +51,7 @@
         v-for="review in reviews"
         :key="review.id"
         :to="`/reviews/${review.id}`"
-        class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow block"
+        class="bg-dark-50 rounded-xl border border-white/[0.04]  p-5 hover:shadow-md transition-shadow block"
       >
         <div class="flex items-start gap-4">
           <!-- 头像 -->
@@ -62,14 +62,14 @@
           />
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-sm font-medium text-gray-700">{{ review.authorName }}</span>
+              <span class="text-sm font-medium text-gray-300">{{ review.authorName }}</span>
               <span class="text-yellow-400 text-sm">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span>
               <span class="text-xs text-gray-400">{{ formatDate(review.createdAt) }}</span>
             </div>
-            <h3 class="font-semibold text-gray-800 mt-1 truncate">{{ review.title }}</h3>
+            <h3 class="font-semibold text-white mt-1 truncate">{{ review.title }}</h3>
             <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ excerpt(review.content) }}</p>
             <div class="flex items-center gap-4 mt-2">
-              <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">{{ review.robotName }}</span>
+              <span class="text-xs text-blue-400 bg-blue-50 px-2 py-0.5 rounded">{{ review.robotName }}</span>
               <span class="text-xs text-gray-400">👍 {{ review.likeCount }}</span>
             </div>
           </div>
@@ -82,7 +82,7 @@
       <button
         :disabled="currentPage === 0"
         @click="changePage(currentPage - 1)"
-        class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+        class="px-4 py-2 rounded-lg border border-white/[0.06] text-sm disabled:opacity-40 hover:bg-dark-100"
       >
         上一页
       </button>
@@ -90,7 +90,7 @@
       <button
         :disabled="currentPage >= totalPages - 1"
         @click="changePage(currentPage + 1)"
-        class="px-4 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50"
+        class="px-4 py-2 rounded-lg border border-white/[0.06] text-sm disabled:opacity-40 hover:bg-dark-100"
       >
         下一页
       </button>

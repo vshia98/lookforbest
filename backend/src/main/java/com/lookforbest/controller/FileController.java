@@ -44,7 +44,7 @@ public class FileController {
      * 此端点用于管理后台的文件上传，路径保持和前端一致
      */
     @PostMapping(value = "/upload/admin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @Operation(summary = "管理员上传文件")
     public ApiResponse<Map<String, String>> adminUpload(@RequestParam("file") MultipartFile file) {
         try {

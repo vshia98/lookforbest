@@ -1,19 +1,19 @@
 <template>
   <div class="max-w-3xl mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">通知中心</h1>
+      <h1 class="text-2xl font-bold text-white">通知中心</h1>
       <button
         v-if="unreadCount > 0"
         @click="markAllRead"
-        class="text-sm text-primary-500 hover:underline"
+        class="text-sm text-primary hover:text-primary-400 transition-colors"
       >全部标记已读</button>
     </div>
 
-    <div v-if="loading" class="text-center py-12 text-gray-400">加载中...</div>
+    <div v-if="loading" class="text-center py-12 text-gray-500">加载中...</div>
 
     <div v-else-if="notifications.length === 0" class="text-center py-16">
       <div class="text-5xl mb-4">🔔</div>
-      <p class="text-gray-400">暂无通知</p>
+      <p class="text-gray-500">暂无通知</p>
     </div>
 
     <ul v-else class="space-y-3">
@@ -21,26 +21,25 @@
         v-for="n in notifications"
         :key="n.id"
         @click="markRead(n)"
-        class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow"
-        :class="n.isRead ? '' : 'border-l-4 border-l-blue-400'"
+        class="card rounded-xl p-4 cursor-pointer transition-all"
+        :class="n.isRead ? '' : 'border-l-4 border-l-primary'"
       >
         <div class="flex items-start gap-3">
           <span class="text-xl mt-0.5">{{ typeIcon(n.type) }}</span>
           <div class="flex-1">
             <div class="flex items-center justify-between">
-              <p class="font-medium text-gray-800 text-sm">{{ n.title }}</p>
-              <div v-if="!n.isRead" class="w-2 h-2 bg-blue-500 rounded-full ml-2 flex-shrink-0 mt-1"></div>
+              <p class="font-medium text-white text-sm">{{ n.title }}</p>
+              <div v-if="!n.isRead" class="w-2 h-2 bg-primary rounded-full ml-2 flex-shrink-0 mt-1"></div>
             </div>
-            <p v-if="n.content" class="text-sm text-gray-500 mt-1">{{ n.content }}</p>
-            <p class="text-xs text-gray-400 mt-2">{{ formatDate(n.createdAt) }}</p>
+            <p v-if="n.content" class="text-sm text-gray-400 mt-1">{{ n.content }}</p>
+            <p class="text-xs text-gray-600 mt-2">{{ formatDate(n.createdAt) }}</p>
           </div>
         </div>
       </li>
     </ul>
 
-    <!-- 加载更多 -->
     <div v-if="hasNext" class="text-center mt-6">
-      <button @click="loadMore" :disabled="loadingMore" class="px-6 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50">
+      <button @click="loadMore" :disabled="loadingMore" class="px-6 py-2 border border-white/10 rounded-xl text-sm text-gray-400 hover:border-primary/30 hover:text-primary transition-all disabled:opacity-50">
         {{ loadingMore ? '加载中...' : '加载更多' }}
       </button>
     </div>

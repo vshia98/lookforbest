@@ -302,7 +302,7 @@ class _FilterSheet extends HookWidget {
           Text('分类', style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
           DropdownButtonFormField<int?>(
-            value: selectedCategoryId.value,
+            initialValue: selectedCategoryId.value,
             decoration: InputDecoration(
               filled: true,
               fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,

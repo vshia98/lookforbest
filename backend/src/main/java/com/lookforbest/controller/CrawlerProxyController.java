@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/admin/crawler")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
 @Slf4j
 @Tag(name = "爬虫管理", description = "配置化爬虫数据源管理与监控（管理员）")
 public class CrawlerProxyController {
@@ -102,5 +102,17 @@ public class CrawlerProxyController {
     @Operation(summary = "获取爬虫运行状态")
     public ResponseEntity<Object> getStatus() {
         return proxy(HttpMethod.GET, "/api/status", null);
+    }
+
+    @PostMapping("/preview")
+    @Operation(summary = "预览选择器提取结果")
+    public ResponseEntity<Object> preview(@RequestBody Map<String, Object> body) {
+        return proxy(HttpMethod.POST, "/api/preview", body);
+    }
+
+    @PostMapping("/fetch-page")
+    @Operation(summary = "抓取页面原始HTML（可视化选择器工具）")
+    public ResponseEntity<Object> fetchPage(@RequestBody Map<String, Object> body) {
+        return proxy(HttpMethod.POST, "/api/fetch-page", body);
     }
 }

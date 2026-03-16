@@ -5,11 +5,11 @@
     </div>
 
     <div v-else-if="cs" class="space-y-6">
-      <router-link to="/case-studies" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
+      <router-link to="/case-studies" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300">
         ← 返回案例列表
       </router-link>
 
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
         <!-- 头部 -->
         <div class="flex items-start gap-4 mb-4">
           <img
@@ -18,9 +18,9 @@
             class="w-12 h-12 rounded-full object-cover flex-shrink-0"
           />
           <div class="flex-1">
-            <span class="font-medium text-gray-700">{{ cs.authorName }}</span>
+            <span class="font-medium text-gray-300">{{ cs.authorName }}</span>
             <div class="flex items-center gap-3 mt-1 text-xs text-gray-400">
-              <span v-if="cs.industry" class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{{ cs.industry }}</span>
+              <span v-if="cs.industry" class="bg-green-900/30 text-green-400 px-2 py-0.5 rounded-full">{{ cs.industry }}</span>
               <span>{{ formatDate(cs.createdAt) }}</span>
               <span>👁 {{ cs.viewCount }} 浏览</span>
             </div>
@@ -28,13 +28,13 @@
           <button
             @click="toggleLike"
             class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm transition-colors"
-            :class="cs.liked ? 'bg-red-50 border-red-200 text-red-500' : 'border-gray-200 text-gray-500 hover:border-red-200 hover:text-red-400'"
+            :class="cs.liked ? 'bg-red-50 border-red-200 text-red-500' : 'border-white/[0.06] text-gray-500 hover:border-red-200 hover:text-red-400'"
           >
             {{ cs.liked ? '❤️' : '🤍' }} {{ cs.likeCount }}
           </button>
         </div>
 
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ cs.title }}</h1>
+        <h1 class="text-2xl font-bold text-white mb-4">{{ cs.title }}</h1>
 
         <!-- 关联机器人 -->
         <div v-if="cs.robotIds && cs.robotIds.length > 0" class="flex gap-2 flex-wrap mb-4">
@@ -42,14 +42,14 @@
           <span
             v-for="robotId in cs.robotIds"
             :key="robotId"
-            class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded"
+            class="text-xs bg-blue-50 text-blue-400 px-2 py-0.5 rounded"
           >
             #{{ robotId }}
           </span>
         </div>
 
         <!-- 内容 -->
-        <div class="prose max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">{{ cs.content }}</div>
+        <div class="prose max-w-none text-gray-300 whitespace-pre-wrap leading-relaxed text-sm">{{ cs.content }}</div>
 
         <!-- 图片 -->
         <div v-if="cs.images && cs.images.length > 0" class="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -58,7 +58,7 @@
             :key="i"
             :src="img"
             :alt="`图片${i + 1}`"
-            class="w-full h-40 object-cover rounded-lg border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
+            class="w-full h-40 object-cover rounded-lg border border-white/[0.04] cursor-pointer hover:opacity-90 transition-opacity"
             @click="previewImage = img"
           />
         </div>

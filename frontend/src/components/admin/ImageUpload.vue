@@ -2,31 +2,31 @@
   <div class="space-y-2">
     <!-- 已有图片预览 -->
     <div v-if="modelValue" class="relative inline-block">
-      <img :src="modelValue" alt="预览" class="h-24 w-24 object-cover rounded-lg border border-gray-200" />
+      <img :src="modelValue" alt="预览" class="h-24 w-24 object-cover rounded-lg border border-white/[0.06] bg-dark-100" />
       <button
         type="button"
         @click="clear"
-        class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600"
+        class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-accent-red text-white rounded-full text-xs flex items-center justify-center hover:brightness-125"
       >×</button>
     </div>
 
     <!-- 上传区域 -->
     <div
       class="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors"
-      :class="dragging ? 'border-primary-400 bg-primary-50' : 'border-gray-200 hover:border-gray-300'"
+      :class="dragging ? 'border-primary/50 bg-primary/5' : 'border-white/10 hover:border-white/20'"
       @click="triggerInput"
       @dragover.prevent="dragging = true"
       @dragleave="dragging = false"
       @drop.prevent="onDrop"
     >
       <div v-if="uploading" class="flex items-center justify-center gap-2 text-sm text-gray-500">
-        <div class="animate-spin w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full"></div>
+        <div class="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></div>
         上传中...
       </div>
-      <div v-else class="text-sm text-gray-400">
-        <span class="text-primary-500 hover:text-primary-600">点击上传</span>
+      <div v-else class="text-sm text-gray-500">
+        <span class="text-primary hover:text-primary-400">点击上传</span>
         或拖拽图片到此处
-        <p class="text-xs mt-1 text-gray-300">支持 JPG、PNG、WebP，最大 10MB</p>
+        <p class="text-xs mt-1 text-gray-600">支持 JPG、PNG、WebP，最大 10MB</p>
       </div>
     </div>
 
@@ -36,10 +36,10 @@
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       type="url"
       placeholder="或直接输入图片 URL"
-      class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+      class="input-dark"
     />
 
-    <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
+    <p v-if="error" class="text-xs text-accent-red">{{ error }}</p>
 
     <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChange" />
   </div>

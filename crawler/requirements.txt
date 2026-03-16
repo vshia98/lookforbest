@@ -11,3 +11,6 @@ croniter==3.0.3
 tenacity==9.0.0
 bleach==6.1.0
 python-multipart==0.0.12
+minio==7.2.12
+cryptography==44.0.0
+bcrypt==4.2.1

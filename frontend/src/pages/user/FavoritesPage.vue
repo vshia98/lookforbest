@@ -1,13 +1,13 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">我的收藏</h1>
+    <h1 class="text-2xl font-bold text-white mb-6">我的收藏</h1>
 
     <LoadingSpinner v-if="favoritesStore.loading" text="加载收藏..." />
 
     <div v-else-if="favoritesStore.favorites.length === 0" class="text-center py-20">
       <div class="text-5xl mb-4">⭐</div>
       <p class="text-gray-500 mb-6">还没有收藏任何机器人</p>
-      <router-link to="/robots" class="bg-primary-500 text-white px-6 py-2.5 rounded-xl text-sm hover:bg-primary-600 transition-colors">
+      <router-link to="/robots" class="bg-primary text-[#1a1a1a] px-6 py-2.5 rounded-xl text-sm hover:bg-primary transition-colors">
         浏览机器人库
       </router-link>
     </div>

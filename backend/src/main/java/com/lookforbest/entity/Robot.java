@@ -7,8 +7,10 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +38,9 @@ public class Robot {
     @Column(name = "name_en", length = 300)
     private String nameEn;
 
+    @Column(length = 500)
+    private String subtitle;
+
     @Column(name = "model_number", length = 200)
     private String modelNumber;
 
@@ -47,6 +52,15 @@ public class Robot {
 
     @Column(name = "description_en", columnDefinition = "TEXT")
     private String descriptionEn;
+
+    @Column(columnDefinition = "TEXT")
+    private String introduction;
+
+    @Column(name = "application_scenarios", columnDefinition = "TEXT")
+    private String applicationScenarios;
+
+    @Column(columnDefinition = "TEXT")
+    private String advantages;
 
     @Column(name = "release_year")
     private Short releaseYear;
@@ -101,15 +115,36 @@ public class Robot {
     @Column(name = "extra_specs", columnDefinition = "json")
     private Map<String, Object> extraSpecs;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "price_range", length = 20)
-    private PriceRange priceRange = PriceRange.inquiry;
+    @Column(name = "price_range", length = 100)
+    private String priceRange = "inquiry";
 
     @Column(name = "price_usd_from", precision = 12, scale = 2)
     private BigDecimal priceUsdFrom;
 
     @Column(name = "cover_image_url", length = 500)
     private String coverImageUrl;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "content_images", columnDefinition = "json")
+    private List<Map<String, String>> contentImages;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "video_urls", columnDefinition = "json")
+    private List<String> videoUrls;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "robot_tag_mappings",
+        joinColumns = @JoinColumn(name = "robot_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<RobotTag> tags = new HashSet<>();
+
+    @Column(name = "is_open_source", length = 20)
+    private String isOpenSource;
+
+    @Column(name = "listed_date")
+    private LocalDate listedDate;
 
     @Column(name = "model_3d_url", length = 500)
     private String model3dUrl;
@@ -167,5 +202,4 @@ public class Robot {
     }
 
     public enum RobotStatus { active, discontinued, upcoming }
-    public enum PriceRange { inquiry, low, medium, high, premium }
 }

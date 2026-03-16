@@ -6,7 +6,7 @@ export interface User {
   id: number
   username: string
   email: string
-  role: 'user' | 'admin'
+  role: 'user' | 'admin' | 'superadmin' | 'manufacturer'
   avatarUrl?: string
 }
 
@@ -15,13 +15,16 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('access_token'))
 
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin = computed(() => user.value?.role === 'admin')
+  const isAdmin = computed(() => user.value?.role === 'admin' || user.value?.role === 'superadmin')
 
   async function login(usernameOrEmail: string, password: string) {
     const res = await authService.login({ usernameOrEmail, password })
     token.value = res.data.accessToken
     user.value = res.data.user
     localStorage.setItem('access_token', res.data.accessToken)
+    if (res.data.refreshToken) {
+      localStorage.setItem('refresh_token', res.data.refreshToken)
+    }
   }
 
   async function register(username: string, email: string, password: string) {
@@ -29,6 +32,9 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = res.data.accessToken
     user.value = res.data.user
     localStorage.setItem('access_token', res.data.accessToken)
+    if (res.data.refreshToken) {
+      localStorage.setItem('refresh_token', res.data.refreshToken)
+    }
   }
 
   async function loginWithOAuth(provider: string, code: string) {
@@ -46,8 +52,10 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const res = await authService.me()
       user.value = res.data
-    } catch {
-      logout()
+    } catch (error: any) {
+      if (error?.code === 401) {
+        logout()
+      }
     }
   }
 
@@ -55,6 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
   }
 
   // 初始化时尝试获取当前用户

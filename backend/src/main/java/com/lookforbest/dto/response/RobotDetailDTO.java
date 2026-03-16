@@ -15,10 +15,14 @@ public class RobotDetailDTO {
     private Long id;
     private String name;
     private String nameEn;
+    private String subtitle;
     private String modelNumber;
     private String slug;
     private String description;
     private String descriptionEn;
+    private String introduction;
+    private String applicationScenarios;
+    private String advantages;
     private Short releaseYear;
     private String status;
 
@@ -33,6 +37,11 @@ public class RobotDetailDTO {
     private String priceRange;
     private BigDecimal priceUsdFrom;
     private String coverImageUrl;
+    private List<Map<String, String>> contentImages;
+    private List<String> videoUrls;
+    private List<TagDTO> tags;
+    private String isOpenSource;
+    private String listedDate;
     private String model3dUrl;
     private Boolean has3dModel;
     private Boolean hasVideo;
@@ -89,12 +98,76 @@ public class RobotDetailDTO {
 
     @Getter
     @Builder
+    public static class TagDTO {
+        private Long id;
+        private String name;
+        private String slug;
+
+        public static TagDTO from(com.lookforbest.entity.RobotTag t) {
+            return TagDTO.builder()
+                    .id(t.getId())
+                    .name(t.getName())
+                    .slug(t.getSlug())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
     public static class DocumentDTO {
         private Long id;
         private String title;
         private String url;
         private String docType;
         private String language;
+    }
+
+    /** 未登录用户返回：隐藏技术参数、文档下载、价格信息 */
+    public static RobotDetailDTO fromPublic(Robot r, List<RobotImage> images, List<RobotVideo> videos,
+                                            List<Robot> similar) {
+        return RobotDetailDTO.builder()
+                .id(r.getId())
+                .name(r.getName())
+                .nameEn(r.getNameEn())
+                .subtitle(r.getSubtitle())
+                .slug(r.getSlug())
+                .description(r.getDescription())
+                .descriptionEn(r.getDescriptionEn())
+                .introduction(r.getIntroduction())
+                .applicationScenarios(r.getApplicationScenarios())
+                .advantages(r.getAdvantages())
+                .releaseYear(r.getReleaseYear())
+                .status(r.getStatus() != null ? r.getStatus().name() : null)
+                .manufacturer(r.getManufacturer() != null ? ManufacturerDTO.from(r.getManufacturer()) : null)
+                .category(r.getCategory() != null ? CategoryDTO.from(r.getCategory()) : null)
+                .applicationDomains(r.getApplicationDomains().stream().map(DomainDTO::from).collect(Collectors.toList()))
+                // 隐藏：specs / extraSpecs / priceRange / priceUsdFrom / documents
+                .coverImageUrl(r.getCoverImageUrl())
+                .contentImages(r.getContentImages())
+                .tags(r.getTags().stream().map(TagDTO::from).collect(Collectors.toList()))
+                .isOpenSource(r.getIsOpenSource())
+                .listedDate(r.getListedDate() != null ? r.getListedDate().toString() : null)
+                .model3dUrl(r.getModel3dUrl())
+                .has3dModel(r.getHas3dModel())
+                .hasVideo(r.getHasVideo())
+                .images(images.stream().map(img -> ImageDTO.builder()
+                        .id(img.getId())
+                        .url(img.getUrl())
+                        .thumbnailUrl(img.getThumbnail())
+                        .imageType(img.getImageType() != null ? img.getImageType().name() : null)
+                        .sortOrder(img.getSortOrder())
+                        .build()).collect(Collectors.toList()))
+                .videos(videos.stream().map(v -> VideoDTO.builder()
+                        .id(v.getId())
+                        .title(v.getTitle())
+                        .url(v.getUrl())
+                        .thumbnailUrl(v.getThumbnail())
+                        .durationS(v.getDurationS())
+                        .build()).collect(Collectors.toList()))
+                .documents(List.of())
+                .isVerified(r.getIsVerified())
+                .similarRobots(similar.stream().map(RobotSummaryDTO::fromPublic).collect(Collectors.toList()))
+                .build();
     }
 
     public static RobotDetailDTO from(Robot r, List<RobotImage> images, List<RobotVideo> videos,
@@ -104,10 +177,14 @@ public class RobotDetailDTO {
                 .id(r.getId())
                 .name(r.getName())
                 .nameEn(r.getNameEn())
+                .subtitle(r.getSubtitle())
                 .modelNumber(r.getModelNumber())
                 .slug(r.getSlug())
                 .description(r.getDescription())
                 .descriptionEn(r.getDescriptionEn())
+                .introduction(r.getIntroduction())
+                .applicationScenarios(r.getApplicationScenarios())
+                .advantages(r.getAdvantages())
                 .releaseYear(r.getReleaseYear())
                 .status(r.getStatus() != null ? r.getStatus().name() : null)
                 .manufacturer(r.getManufacturer() != null ? ManufacturerDTO.from(r.getManufacturer()) : null)
@@ -130,9 +207,14 @@ public class RobotDetailDTO {
                         .walkingSpeedMs(r.getWalkingSpeedMs())
                         .build())
                 .extraSpecs(r.getExtraSpecs())
-                .priceRange(r.getPriceRange() != null ? r.getPriceRange().name() : null)
+                .priceRange(r.getPriceRange())
                 .priceUsdFrom(r.getPriceUsdFrom())
                 .coverImageUrl(r.getCoverImageUrl())
+                .contentImages(r.getContentImages())
+                .videoUrls(r.getVideoUrls())
+                .tags(r.getTags().stream().map(TagDTO::from).collect(Collectors.toList()))
+                .isOpenSource(r.getIsOpenSource())
+                .listedDate(r.getListedDate() != null ? r.getListedDate().toString() : null)
                 .model3dUrl(r.getModel3dUrl())
                 .has3dModel(r.getHas3dModel())
                 .hasVideo(r.getHasVideo())

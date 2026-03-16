@@ -23,6 +23,8 @@ from core.db import (
 )
 from core.engine import run_source
 from core.scheduler import refresh_jobs, shutdown
+from core.fetcher import fetch_page
+from core.extractor import extract_item, extract_item_urls
 
 logging.basicConfig(
     level=logging.INFO,
@@ -226,6 +228,61 @@ def get_status():
         "running_jobs": list(_running_jobs.keys()),
         "running_count": len(_running_jobs),
     }
+
+
+# ──────────────────────────── Preview API ────────────────────────────────
+
+class FetchPageRequest(BaseModel):
+    url: str = Field(..., description="要抓取的页面 URL")
+
+
+@app.post("/api/fetch-page")
+def fetch_page_html(req: FetchPageRequest):
+    """抓取指定 URL 的原始 HTML，用于可视化选择器工具"""
+    try:
+        html = fetch_page(req.url, timeout=15)
+    except Exception as e:
+        raise HTTPException(400, f"页面抓取失败: {e}")
+    return {"data": {"html": html, "url": req.url}}
+
+
+class PreviewRequest(BaseModel):
+    url: str = Field(..., description="要预览的页面 URL")
+    config: dict = Field(..., description="爬取规则配置 JSON")
+
+
+@app.post("/api/preview")
+def preview_extraction(req: PreviewRequest):
+    """预览选择器提取结果：抓取指定 URL，用 config 中的选择器提取数据并返回"""
+    try:
+        html = fetch_page(req.url, timeout=10)
+    except Exception as e:
+        raise HTTPException(400, f"页面抓取失败: {e}")
+
+    result = {"url": req.url, "fields": {}, "list_urls": []}
+
+    # 提取 detail_fields
+    detail_fields = req.config.get("detail_fields", {})
+    if detail_fields:
+        extracted = extract_item(html, detail_fields)
+        result["fields"] = extracted
+
+    # 提取列表页 URL
+    list_page = req.config.get("list_page", {})
+    list_selector = list_page.get("selector")
+    if list_selector:
+        url_attr = list_page.get("url_attr", "href")
+        urls = extract_item_urls(html, list_selector, url_attr=url_attr, base_url=req.url)
+        result["list_urls"] = urls[:20]  # 最多返回 20 条
+
+    # 返回页面 title 供参考
+    from selectolax.parser import HTMLParser
+    tree = HTMLParser(html)
+    title_node = tree.css_first("title")
+    result["page_title"] = title_node.text(strip=True) if title_node else ""
+    result["html_length"] = len(html)
+
+    return {"data": result}
 
 
 if __name__ == "__main__":

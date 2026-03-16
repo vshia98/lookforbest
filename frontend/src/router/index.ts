@@ -22,7 +22,9 @@ const router = createRouter({
         { path: 'case-studies', name: 'case-studies', component: () => import('@/pages/robots/CaseStudyListPage.vue') },
         { path: 'case-studies/:id', name: 'case-study-detail', component: () => import('@/pages/robots/CaseStudyDetailPage.vue') },
         { path: 'manufacturer-portal/apply', name: 'manufacturer-apply', component: () => import('@/pages/manufacturers/PortalApplyPage.vue'), meta: { requiresAuth: true } },
-        { path: 'manufacturer-portal/dashboard', name: 'manufacturer-dashboard', component: () => import('@/pages/manufacturers/ManufacturerDashboardPage.vue'), meta: { requiresAuth: true } }
+        { path: 'manufacturer-portal/dashboard', name: 'manufacturer-dashboard', component: () => import('@/pages/manufacturers/ManufacturerDashboardPage.vue'), meta: { requiresAuth: true } },
+        { path: 'about', name: 'about', component: () => import('@/pages/about/AboutPage.vue') },
+        { path: 'contact', name: 'contact', component: () => import('@/pages/about/ContactPage.vue') }
       ]
     },
     {
@@ -41,7 +43,9 @@ const router = createRouter({
         { path: 'ugc', name: 'admin-ugc', component: () => import('@/pages/admin/UgcModerationPage.vue') },
         { path: 'ads', name: 'admin-ads', component: () => import('@/pages/admin/AdManagementPage.vue') },
         { path: 'manufacturer-applications', name: 'admin-manufacturer-applications', component: () => import('@/pages/admin/ManufacturerApplicationsPage.vue') },
-        { path: 'membership', name: 'admin-membership', component: () => import('@/pages/admin/MembershipAdminPage.vue') }
+        { path: 'membership', name: 'admin-membership', component: () => import('@/pages/admin/MembershipAdminPage.vue') },
+        { path: 'settings', name: 'admin-settings', component: () => import('@/pages/admin/SiteSettingsPage.vue') },
+        { path: 'selector-tool', name: 'admin-selector-tool', component: () => import('@/pages/admin/SelectorToolPage.vue') }
       ]
     },
     { path: '/login', name: 'login', component: () => import('@/pages/user/LoginPage.vue') },
@@ -51,13 +55,37 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 })
 })
 
+function getRoleFromToken(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return payload.role ?? null
+  } catch {
+    return null
+  }
+}
+
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('access_token')
+
   if (to.meta.requiresAuth && !token) {
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else {
-    next()
+    return
   }
+
+  if (to.meta.requiresAdmin) {
+    if (!token) {
+      next({ name: 'login', query: { redirect: to.fullPath } })
+      return
+    }
+    const role = getRoleFromToken(token)
+    if (role !== 'admin' && role !== 'superadmin') {
+      // 有 token 但不是管理员，跳回首页
+      next({ name: 'home' })
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

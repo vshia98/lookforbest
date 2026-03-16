@@ -5,19 +5,19 @@
     <Transition name="chat-slide">
       <div
         v-if="isOpen"
-        class="w-96 h-[520px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
+        class="w-96 h-[520px] bg-dark-50 rounded-2xl shadow-2xl border border-white/[0.04] flex flex-col overflow-hidden"
       >
         <!-- 头部 -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white text-sm font-bold">AI</div>
+            <div class="w-8 h-8 bg-dark-50/20 rounded-full flex items-center justify-center text-white text-sm font-bold">AI</div>
             <div>
               <p class="text-white font-semibold text-sm">机器人选型助手</p>
               <p class="text-blue-100 text-xs">告诉我您的需求，我来推荐</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button @click="clearSession" class="text-white/70 hover:text-white text-xs px-2 py-1 rounded hover:bg-white/10 transition">清空</button>
+            <button @click="clearSession" class="text-white/70 hover:text-white text-xs px-2 py-1 rounded hover:bg-dark-50/10 transition">清空</button>
             <button @click="isOpen = false" class="text-white/70 hover:text-white">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -27,7 +27,7 @@
         </div>
 
         <!-- 消息区域 -->
-        <div ref="messageContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+        <div ref="messageContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-dark-100">
           <!-- 欢迎消息 -->
           <div v-if="messages.length === 0" class="text-center py-8">
             <div class="text-4xl mb-3">🤖</div>
@@ -38,7 +38,7 @@
                 v-for="hint in quickHints"
                 :key="hint"
                 @click="sendQuick(hint)"
-                class="px-3 py-1.5 bg-white border border-blue-200 rounded-full text-xs text-blue-600 hover:bg-blue-50 transition"
+                class="px-3 py-1.5 bg-dark-50 border border-blue-200 rounded-full text-xs text-blue-400 hover:bg-blue-50 transition"
               >{{ hint }}</button>
             </div>
           </div>
@@ -48,8 +48,8 @@
             <div
               class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
               :class="msg.role === 'user'
-                ? 'bg-blue-600 text-white rounded-br-sm'
-                : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-bl-sm'"
+                ? 'bg-primary text-[#1a1a1a] rounded-br-sm'
+                : 'bg-dark-50 text-gray-300  border border-white/[0.04] rounded-bl-sm'"
             >
               <div v-if="msg.role === 'assistant'" v-html="formatContent(msg.content)" />
               <span v-else>{{ msg.content }}</span>
@@ -58,7 +58,7 @@
 
           <!-- 流式输出中 -->
           <div v-if="streamingContent" class="flex justify-start">
-            <div class="max-w-[80%] bg-white text-gray-700 shadow-sm border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm leading-relaxed">
+            <div class="max-w-[80%] bg-dark-50 text-gray-300  border border-white/[0.04] rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm leading-relaxed">
               <div v-html="formatContent(streamingContent)" />
               <span class="inline-block w-1.5 h-4 bg-blue-500 ml-1 animate-pulse" />
             </div>
@@ -66,7 +66,7 @@
 
           <!-- Loading -->
           <div v-if="isLoading && !streamingContent" class="flex justify-start">
-            <div class="bg-white shadow-sm border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
+            <div class="bg-dark-50  border border-white/[0.04] rounded-2xl rounded-bl-sm px-4 py-3">
               <div class="flex gap-1">
                 <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay:0ms" />
                 <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay:150ms" />
@@ -77,7 +77,7 @@
         </div>
 
         <!-- 输入区域 -->
-        <div class="p-3 bg-white border-t border-gray-100">
+        <div class="p-3 bg-dark-50 border-t border-white/[0.04]">
           <div class="flex gap-2">
             <input
               v-model="inputText"
@@ -85,12 +85,12 @@
               :disabled="isLoading"
               type="text"
               placeholder="描述您的需求..."
-              class="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:bg-white transition disabled:opacity-50"
+              class="flex-1 px-3 py-2 bg-dark-100 border border-white/[0.06] rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:bg-dark-50 transition disabled:opacity-50"
             />
             <button
               @click="sendMessage"
               :disabled="isLoading || !inputText.trim()"
-              class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              class="px-4 py-2 bg-primary text-[#1a1a1a] rounded-xl text-sm font-medium hover:bg-primary-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               发送
             </button>

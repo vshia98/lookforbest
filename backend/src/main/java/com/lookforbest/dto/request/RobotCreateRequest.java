@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -23,9 +24,13 @@ public class RobotCreateRequest {
     private String name;
 
     private String nameEn;
+    private String subtitle;
     private String modelNumber;
     private String description;
     private String descriptionEn;
+    private String introduction;
+    private String applicationScenarios;
+    private String advantages;
     private Short releaseYear;
     private String status;
 
@@ -48,5 +53,11 @@ public class RobotCreateRequest {
     private String priceRange;
     private BigDecimal priceUsdFrom;
     private String coverImageUrl;
+    private List<Map<String, String>> contentImages;
+    private List<String> videoUrls;
+    /** 标签名称列表，不存在的会自动创建 */
+    private List<String> tagNames;
+    private String isOpenSource;
+    private LocalDate listedDate;
     private List<Long> applicationDomainIds;
 }

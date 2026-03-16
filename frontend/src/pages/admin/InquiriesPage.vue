@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-gray-800">询价管理</h2>
+      <h2 class="text-xl font-bold text-white">询价管理</h2>
       <div class="flex items-center gap-2">
         <span class="text-sm text-gray-500">共 {{ total }} 条询价</span>
       </div>
@@ -10,9 +10,9 @@
     <div v-if="loading" class="text-center py-12 text-gray-400">加载中...</div>
 
     <div v-else>
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  overflow-hidden">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50 border-b border-gray-100">
+          <thead class="bg-dark-100 border-b border-white/[0.04]">
             <tr>
               <th class="px-4 py-3 text-left text-gray-500 font-medium">机器人</th>
               <th class="px-4 py-3 text-left text-gray-500 font-medium">厂商</th>
@@ -23,15 +23,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in inquiries" :key="item.id" class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
+            <tr v-for="item in inquiries" :key="item.id" class="border-b border-white/[0.04] last:border-0 hover:bg-dark-100">
               <td class="px-4 py-3">
-                <router-link :to="`/robots/${item.robotSlug}`" target="_blank" class="font-medium text-primary-500 hover:underline">
+                <router-link :to="`/robots/${item.robotSlug}`" target="_blank" class="font-medium text-primary hover:underline">
                   {{ item.robotName }}
                 </router-link>
               </td>
-              <td class="px-4 py-3 text-gray-600">{{ item.manufacturerName }}</td>
+              <td class="px-4 py-3 text-gray-400">{{ item.manufacturerName }}</td>
               <td class="px-4 py-3">
-                <div class="text-gray-700">{{ item.contactName || '-' }}</div>
+                <div class="text-gray-300">{{ item.contactName || '-' }}</div>
                 <div class="text-gray-400 text-xs">{{ item.contactEmail }}</div>
                 <div v-if="item.contactPhone" class="text-gray-400 text-xs">{{ item.contactPhone }}</div>
               </td>
@@ -42,7 +42,7 @@
               </td>
               <td class="px-4 py-3 text-gray-400 text-xs">{{ formatDate(item.createdAt) }}</td>
               <td class="px-4 py-3">
-                <button @click="openDetail(item)" class="text-primary-500 hover:underline text-xs mr-3">查看/回复</button>
+                <button @click="openDetail(item)" class="text-primary hover:underline text-xs mr-3">查看/回复</button>
               </td>
             </tr>
           </tbody>
@@ -55,22 +55,22 @@
           v-for="p in totalPages" :key="p"
           @click="loadPage(p - 1)"
           class="px-3 py-1.5 rounded-lg text-sm border transition-colors"
-          :class="p - 1 === currentPage ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-200 text-gray-600 hover:bg-gray-50'"
+          :class="p - 1 === currentPage ? 'bg-primary text-[#1a1a1a] border-primary-500' : 'border-white/[0.06] text-gray-400 hover:bg-dark-100'"
         >{{ p }}</button>
       </div>
     </div>
 
     <!-- 详情/回复侧抽屉 -->
     <div v-if="selectedInquiry" class="fixed inset-0 z-50 flex justify-end" @click.self="selectedInquiry = null">
-      <div class="bg-white w-full max-w-md h-full shadow-2xl overflow-y-auto p-6">
-        <button @click="selectedInquiry = null" class="text-gray-400 hover:text-gray-600 text-xl mb-4">&times; 关闭</button>
-        <h3 class="font-bold text-gray-800 mb-1">询价详情</h3>
+      <div class="bg-dark-50 w-full max-w-md h-full shadow-2xl overflow-y-auto p-6">
+        <button @click="selectedInquiry = null" class="text-gray-400 hover:text-gray-400 text-xl mb-4">&times; 关闭</button>
+        <h3 class="font-bold text-white mb-1">询价详情</h3>
         <p class="text-sm text-gray-400 mb-4">{{ selectedInquiry.robotName }} - {{ selectedInquiry.manufacturerName }}</p>
 
         <div class="space-y-3 mb-6">
-          <div class="bg-gray-50 rounded-xl p-4">
+          <div class="bg-dark-100 rounded-xl p-4">
             <p class="text-xs text-gray-400 mb-1">询价内容</p>
-            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ selectedInquiry.message }}</p>
+            <p class="text-sm text-gray-300 whitespace-pre-wrap">{{ selectedInquiry.message }}</p>
           </div>
           <div class="grid grid-cols-2 gap-3 text-sm">
             <div><span class="text-gray-400">姓名：</span>{{ selectedInquiry.contactName || '-' }}</div>
@@ -81,38 +81,37 @@
         </div>
 
         <!-- 已有回复 -->
-        <div v-if="selectedInquiry.replyContent" class="bg-blue-50 rounded-xl p-4 mb-5">
+        <div v-if="selectedInquiry.replyContent" class="bg-blue-900/20 rounded-xl p-4 mb-5">
           <p class="text-xs text-blue-400 mb-1">已回复于 {{ formatDate(selectedInquiry.repliedAt || '') }}</p>
-          <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ selectedInquiry.replyContent }}</p>
+          <p class="text-sm text-gray-300 whitespace-pre-wrap">{{ selectedInquiry.replyContent }}</p>
         </div>
 
         <!-- 状态更新 -->
         <div class="mb-5">
-          <label class="block text-sm font-medium text-gray-700 mb-2">更新状态</label>
+          <label class="block text-sm font-medium text-gray-300 mb-2">更新状态</label>
           <div class="flex gap-2 flex-wrap">
             <button v-for="s in ['pending','contacted','replied','closed']" :key="s"
               @click="updateStatus(s)"
               :disabled="selectedInquiry.status === s"
               class="px-3 py-1.5 rounded-lg text-xs border transition-colors"
-              :class="selectedInquiry.status === s ? 'bg-gray-100 text-gray-400 cursor-default' : 'border-gray-200 text-gray-600 hover:bg-gray-50'"
+              :class="selectedInquiry.status === s ? 'bg-dark-100 text-gray-400 cursor-default' : 'border-white/[0.06] text-gray-400 hover:bg-dark-100'"
             >{{ statusLabel(s) }}</button>
           </div>
         </div>
 
         <!-- 回复表单 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">回复内容</label>
+          <label class="block text-sm font-medium text-gray-300 mb-2">回复内容</label>
           <textarea
             v-model="replyContent"
             rows="5"
             placeholder="输入回复内容..."
-            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+            class="input-dark w-full"
           ></textarea>
-          <p v-if="replyError" class="text-xs text-red-500 mt-1">{{ replyError }}</p>
           <button
             @click="submitReply"
             :disabled="replySubmitting || !replyContent.trim()"
-            class="mt-3 w-full py-2.5 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-colors disabled:opacity-50"
+            class="mt-3 w-full py-2.5 bg-primary text-[#1a1a1a] rounded-xl text-sm font-medium hover:bg-primary transition-colors disabled:opacity-50"
           >
             {{ replySubmitting ? '提交中...' : '提交回复' }}
           </button>
@@ -144,12 +143,12 @@ function statusLabel(s: string) {
 
 function statusClass(s: string) {
   const map: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    contacted: 'bg-blue-100 text-blue-700',
-    replied: 'bg-green-100 text-green-700',
-    closed: 'bg-gray-100 text-gray-500'
+    pending: 'bg-yellow-900/30 text-yellow-400',
+    contacted: 'bg-blue-900/30 text-blue-400',
+    replied: 'bg-green-900/30 text-green-400',
+    closed: 'bg-dark-100 text-gray-500'
   }
-  return map[s] ?? 'bg-gray-100 text-gray-500'
+  return map[s] ?? 'bg-dark-100 text-gray-500'
 }
 
 function formatDate(d: string) {

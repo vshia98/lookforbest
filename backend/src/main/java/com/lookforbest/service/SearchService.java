@@ -1,12 +1,15 @@
 package com.lookforbest.service;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import com.lookforbest.entity.Robot;
 import com.lookforbest.entity.RobotEsDocument;
 import com.lookforbest.entity.SearchHotKeyword;
+import com.lookforbest.repository.RobotRepository;
 import com.lookforbest.repository.SearchHotKeywordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -29,12 +32,13 @@ public class SearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final SearchHotKeywordRepository hotKeywordRepository;
+    private final RobotRepository robotRepository;
 
     @Value("${app.elasticsearch.enabled:false}")
     private boolean esEnabled;
 
     /**
-     * 全文搜索机器人（ES 版本，带高亮）
+     * 全文搜索机器人 — 优先走 ES，ES 不可用时降级到 MySQL
      */
     public Map<String, Object> searchRobots(
             String q, Long categoryId, Long manufacturerId,
@@ -48,6 +52,27 @@ public class SearchService {
         if (StringUtils.hasText(q)) {
             recordKeyword(q.trim());
         }
+
+        try {
+            return searchViaElasticsearch(q, categoryId, manufacturerId,
+                    payloadMin, payloadMax, reachMin, reachMax,
+                    dofMin, dofMax, has3dModel, status, sort, pageable);
+        } catch (Exception e) {
+            log.warn("Elasticsearch 不可用，降级到数据库搜索: {}", e.getMessage());
+            return searchViaDatabase(q, categoryId, manufacturerId,
+                    payloadMin, payloadMax, reachMin, reachMax,
+                    dofMin, dofMax, has3dModel, status, sort, pageable);
+        }
+    }
+
+    /** ES 搜索 */
+    private Map<String, Object> searchViaElasticsearch(
+            String q, Long categoryId, Long manufacturerId,
+            BigDecimal payloadMin, BigDecimal payloadMax,
+            Integer reachMin, Integer reachMax,
+            Integer dofMin, Integer dofMax,
+            Boolean has3dModel, String status,
+            String sort, Pageable pageable) {
 
         BoolQuery.Builder boolQuery = new BoolQuery.Builder();
 
@@ -155,6 +180,111 @@ public class SearchService {
         response.put("page", pageable.getPageNumber());
         response.put("size", pageable.getPageSize());
         response.put("totalPages", (int) Math.ceil((double) hits.getTotalHits() / pageable.getPageSize()));
+        return response;
+    }
+
+    /** 去除搜索词中的通用噪音词 */
+    private static final Set<String> STOP_WORDS = Set.of(
+            "机器人", "机器", "产品", "设备", "系统", "智能", "方案", "的", "了", "和", "是"
+    );
+
+    private String cleanQuery(String q) {
+        if (q == null) return null;
+        String cleaned = q.trim();
+        for (String sw : STOP_WORDS) {
+            cleaned = cleaned.replace(sw, " ");
+        }
+        return cleaned.replaceAll("\\s+", " ").trim();
+    }
+
+    /** 数据库降级搜索 — 拆词 + 去噪音词，多关键词合并结果 */
+    private Map<String, Object> searchViaDatabase(
+            String q, Long categoryId, Long manufacturerId,
+            BigDecimal payloadMin, BigDecimal payloadMax,
+            Integer reachMin, Integer reachMax,
+            Integer dofMin, Integer dofMax,
+            Boolean has3dModel, String status,
+            String sort, Pageable pageable) {
+
+        Robot.RobotStatus robotStatus = null;
+        if (StringUtils.hasText(status)) {
+            try { robotStatus = Robot.RobotStatus.valueOf(status); } catch (IllegalArgumentException ignored) {}
+        }
+
+        // 清理搜索词并拆成关键词列表
+        String cleaned = cleanQuery(q);
+        List<String> keywords = new ArrayList<>();
+        if (StringUtils.hasText(cleaned)) {
+            // 原始清理后的词（如 "轮式"）
+            keywords.add(cleaned);
+            // 按空格拆分的子词
+            for (String part : cleaned.split("\\s+")) {
+                if (part.length() >= 2 && !keywords.contains(part)) {
+                    keywords.add(part);
+                }
+            }
+        }
+
+        // 用所有关键词分别查询，合并去重
+        LinkedHashMap<Long, Robot> merged = new LinkedHashMap<>();
+        long totalHits = 0;
+        for (String kw : keywords) {
+            Page<Robot> page = robotRepository.findWithFilters(
+                    kw, categoryId, manufacturerId, null,
+                    payloadMin, payloadMax, reachMin, reachMax,
+                    dofMin, dofMax, has3dModel, robotStatus, pageable
+            );
+            for (Robot r : page.getContent()) {
+                merged.putIfAbsent(r.getId(), r);
+            }
+            totalHits = Math.max(totalHits, page.getTotalElements());
+        }
+
+        // 如果关键词为空（无搜索词），走原始查询
+        if (keywords.isEmpty()) {
+            Page<Robot> page = robotRepository.findWithFilters(
+                    null, categoryId, manufacturerId, null,
+                    payloadMin, payloadMax, reachMin, reachMax,
+                    dofMin, dofMax, has3dModel, robotStatus, pageable
+            );
+            for (Robot r : page.getContent()) {
+                merged.putIfAbsent(r.getId(), r);
+            }
+            totalHits = page.getTotalElements();
+        }
+
+        List<Map<String, Object>> results = new ArrayList<>();
+        int skip = pageable.getPageNumber() * pageable.getPageSize();
+        int limit = pageable.getPageSize();
+        int idx = 0;
+        for (Robot r : merged.values()) {
+            if (idx >= skip && results.size() < limit) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("id", r.getId());
+                item.put("name", r.getName());
+                item.put("nameEn", r.getNameEn());
+                item.put("slug", r.getSlug());
+                item.put("modelNumber", r.getModelNumber());
+                item.put("categoryId", r.getCategory() != null ? r.getCategory().getId() : null);
+                item.put("categoryName", r.getCategory() != null ? r.getCategory().getName() : null);
+                item.put("manufacturerId", r.getManufacturer() != null ? r.getManufacturer().getId() : null);
+                item.put("manufacturerName", r.getManufacturer() != null ? r.getManufacturer().getName() : null);
+                item.put("coverImageUrl", r.getCoverImageUrl());
+                item.put("priceRange", r.getPriceRange());
+                item.put("has3dModel", r.getHas3dModel());
+                item.put("viewCount", r.getViewCount());
+                item.put("isFeatured", r.getIsFeatured());
+                results.add(item);
+            }
+            idx++;
+        }
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("hits", results);
+        response.put("total", Math.max(totalHits, merged.size()));
+        response.put("page", pageable.getPageNumber());
+        response.put("size", pageable.getPageSize());
+        response.put("totalPages", (int) Math.ceil((double) Math.max(totalHits, merged.size()) / pageable.getPageSize()));
         return response;
     }
 

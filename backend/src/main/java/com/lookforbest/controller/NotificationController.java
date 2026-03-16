@@ -66,7 +66,7 @@ public class NotificationController {
 
     /** 管理员：发布系统公告 */
     @PostMapping("/admin/announcement")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @Operation(summary = "管理员发布系统公告（广播全部用户）")
     public ApiResponse<Void> announcement(@Valid @RequestBody AnnouncementRequest req) {
         notificationService.broadcastAnnouncement(req);

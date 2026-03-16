@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,16 +56,20 @@ public class RobotController {
             @RequestParam(defaultValue = "active") String status,
             @RequestParam(defaultValue = "relevance") String sort,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        size = Math.min(size, 100);
+        boolean fullAccess = isEmailVerified(userDetails);
+        size = Math.min(size, 20);
         Page<Robot> robots = robotService.findAll(
                 q, categoryId, manufacturerId, domainIds,
                 payloadMin, payloadMax, reachMin, reachMax,
                 dofMin, dofMax, has3dModel, status, sort,
                 PageRequest.of(page, size)
         );
-        return ApiResponse.ok(PagedResponse.of(robots.map(RobotSummaryDTO::from)));
+        return ApiResponse.ok(PagedResponse.of(
+                fullAccess ? robots.map(RobotSummaryDTO::from) : robots.map(RobotSummaryDTO::fromPublic)
+        ));
     }
 
     @GetMapping("/{id}")
@@ -73,8 +78,15 @@ public class RobotController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
         Robot robot = robotService.findById(id);
-        String email = userDetails != null ? userDetails.getUsername() : null;
-        boolean favorited = favoriteService.isFavorited(email, id);
+        if (!isEmailVerified(userDetails)) {
+            return ApiResponse.ok(RobotDetailDTO.fromPublic(
+                    robot,
+                    imageRepository.findByRobotIdOrderBySortOrderAsc(id),
+                    videoRepository.findByRobotIdOrderBySortOrderAsc(id),
+                    robotService.findSimilar(id, 6)
+            ));
+        }
+        boolean favorited = favoriteService.isFavorited(userDetails.getUsername(), id);
         return ApiResponse.ok(RobotDetailDTO.from(
                 robot,
                 imageRepository.findByRobotIdOrderBySortOrderAsc(id),
@@ -91,8 +103,15 @@ public class RobotController {
             @PathVariable String slug,
             @AuthenticationPrincipal UserDetails userDetails) {
         Robot robot = robotService.findBySlug(slug);
-        String email = userDetails != null ? userDetails.getUsername() : null;
-        boolean favorited = favoriteService.isFavorited(email, robot.getId());
+        if (!isEmailVerified(userDetails)) {
+            return ApiResponse.ok(RobotDetailDTO.fromPublic(
+                    robot,
+                    imageRepository.findByRobotIdOrderBySortOrderAsc(robot.getId()),
+                    videoRepository.findByRobotIdOrderBySortOrderAsc(robot.getId()),
+                    robotService.findSimilar(robot.getId(), 6)
+            ));
+        }
+        boolean favorited = favoriteService.isFavorited(userDetails.getUsername(), robot.getId());
         return ApiResponse.ok(RobotDetailDTO.from(
                 robot,
                 imageRepository.findByRobotIdOrderBySortOrderAsc(robot.getId()),
@@ -149,5 +168,11 @@ public class RobotController {
     public ApiResponse<?> delete(@PathVariable Long id) {
         robotService.delete(id);
         return ApiResponse.ok();
+    }
+
+    /** 判断当前用户是否已登录且邮箱已验证，只有满足条件才返回完整字段 */
+    private boolean isEmailVerified(UserDetails userDetails) {
+        if (userDetails == null) return false;
+        return userDetails.getAuthorities().contains(new SimpleGrantedAuthority("EMAIL_VERIFIED"));
     }
 }

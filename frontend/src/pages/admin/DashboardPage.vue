@@ -1,15 +1,15 @@
 <template>
   <div>
-    <h2 class="text-xl font-bold text-gray-800 mb-6">仪表盘</h2>
+    <h2 class="text-xl font-bold text-white mb-6">仪表盘</h2>
 
     <!-- 统计卡片 -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div v-for="card in statCards" :key="card.label" class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+      <div v-for="card in statCards" :key="card.label" class="bg-dark-50 rounded-xl border border-white/[0.04]  p-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" :class="card.iconBg">{{ card.icon }}</div>
           <div>
-            <p class="text-2xl font-bold text-gray-800">
-              <span v-if="loadingStats" class="inline-block w-8 h-5 bg-gray-100 rounded animate-pulse"></span>
+            <p class="text-2xl font-bold text-white">
+              <span v-if="loadingStats" class="inline-block w-8 h-5 bg-dark-100 rounded animate-pulse"></span>
               <span v-else>{{ card.value }}</span>
             </p>
             <p class="text-sm text-gray-500">{{ card.label }}</p>
@@ -20,14 +20,14 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <!-- 状态分布 -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 class="font-semibold text-gray-800 mb-4">机器人状态分布</h3>
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
+        <h3 class="font-semibold text-white mb-4">机器人状态分布</h3>
         <div class="space-y-3">
           <div v-for="item in statusDistribution" :key="item.label" class="flex items-center gap-3">
             <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" :class="item.color"></div>
-            <span class="text-sm text-gray-600 flex-1">{{ item.label }}</span>
-            <span class="text-sm font-medium text-gray-800">{{ item.value }}</span>
-            <div class="w-24 bg-gray-100 rounded-full h-1.5">
+            <span class="text-sm text-gray-400 flex-1">{{ item.label }}</span>
+            <span class="text-sm font-medium text-white">{{ item.value }}</span>
+            <div class="w-24 bg-dark-100 rounded-full h-1.5">
               <div class="h-1.5 rounded-full transition-all" :class="item.color" :style="{ width: item.pct + '%' }"></div>
             </div>
           </div>
@@ -35,16 +35,16 @@
       </div>
 
       <!-- 分类分布 Top 5 -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 class="font-semibold text-gray-800 mb-4">分类分布（Top 5）</h3>
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
+        <h3 class="font-semibold text-white mb-4">分类分布（Top 5）</h3>
         <div v-if="loadingStats" class="space-y-2">
-          <div v-for="i in 5" :key="i" class="h-4 bg-gray-100 rounded animate-pulse"></div>
+          <div v-for="i in 5" :key="i" class="h-4 bg-dark-100 rounded animate-pulse"></div>
         </div>
         <div v-else class="space-y-3">
           <div v-for="item in topCategories" :key="item.name" class="flex items-center gap-3">
-            <span class="text-sm text-gray-600 flex-1 truncate">{{ item.name }}</span>
-            <span class="text-sm font-medium text-gray-800">{{ item.count }}</span>
-            <div class="w-24 bg-gray-100 rounded-full h-1.5">
+            <span class="text-sm text-gray-400 flex-1 truncate">{{ item.name }}</span>
+            <span class="text-sm font-medium text-white">{{ item.count }}</span>
+            <div class="w-24 bg-dark-100 rounded-full h-1.5">
               <div class="h-1.5 rounded-full bg-primary-400 transition-all" :style="{ width: item.pct + '%' }"></div>
             </div>
           </div>
@@ -54,15 +54,15 @@
     </div>
 
     <!-- 热门机器人 -->
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-5">
-      <h3 class="font-semibold text-gray-800 mb-4">热门机器人（按浏览量 Top 10）</h3>
+    <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6 mb-5">
+      <h3 class="font-semibold text-white mb-4">热门机器人（按浏览量 Top 10）</h3>
       <div v-if="loadingStats" class="space-y-2">
-        <div v-for="i in 5" :key="i" class="h-8 bg-gray-100 rounded animate-pulse"></div>
+        <div v-for="i in 5" :key="i" class="h-8 bg-dark-100 rounded animate-pulse"></div>
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-gray-100">
+            <tr class="border-b border-white/[0.04]">
               <th class="text-left py-2 text-gray-500 font-medium">#</th>
               <th class="text-left py-2 text-gray-500 font-medium">机器人</th>
               <th class="text-right py-2 text-gray-500 font-medium">浏览量</th>
@@ -71,13 +71,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(r, i) in topRobots" :key="r.id" class="border-b border-gray-50 hover:bg-gray-50">
+            <tr v-for="(r, i) in topRobots" :key="r.id" class="border-b border-white/[0.04] hover:bg-dark-100">
               <td class="py-2 text-gray-400 w-8">{{ i + 1 }}</td>
-              <td class="py-2 text-gray-800">
-                <router-link :to="`/admin/robots/${r.id}/edit`" class="hover:text-primary-600 hover:underline">{{ r.name }}</router-link>
+              <td class="py-2 text-white">
+                <router-link :to="`/admin/robots/${r.id}/edit`" class="hover:text-primary hover:underline">{{ r.name }}</router-link>
               </td>
-              <td class="py-2 text-right text-gray-600">{{ r.viewCount?.toLocaleString() }}</td>
-              <td class="py-2 text-right text-gray-600">{{ r.favoriteCount?.toLocaleString() }}</td>
+              <td class="py-2 text-right text-gray-400">{{ r.viewCount?.toLocaleString() }}</td>
+              <td class="py-2 text-right text-gray-400">{{ r.favoriteCount?.toLocaleString() }}</td>
               <td class="py-2 text-right">
                 <span class="px-2 py-0.5 text-xs rounded-full" :class="statusClass(r.status)">{{ statusLabel(r.status) }}</span>
               </td>
@@ -92,8 +92,8 @@
 
     <!-- ===== 用户行为分析 ===== -->
     <div class="mt-8 mb-2 flex items-center justify-between">
-      <h2 class="text-xl font-bold text-gray-800">用户行为分析</h2>
-      <select v-model="analyticsDays" @change="loadAnalytics" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-400">
+      <h2 class="text-xl font-bold text-white">用户行为分析</h2>
+      <select v-model="analyticsDays" @change="loadAnalytics" class="input-dark text-sm">
         <option :value="7">近 7 天</option>
         <option :value="14">近 14 天</option>
         <option :value="30">近 30 天</option>
@@ -102,12 +102,12 @@
 
     <!-- 行为概览卡片 -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
-      <div v-for="card in analyticsCards" :key="card.label" class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+      <div v-for="card in analyticsCards" :key="card.label" class="bg-dark-50 rounded-xl border border-white/[0.04]  p-5">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" :class="card.iconBg">{{ card.icon }}</div>
           <div>
-            <p class="text-2xl font-bold text-gray-800">
-              <span v-if="loadingAnalytics" class="inline-block w-10 h-5 bg-gray-100 rounded animate-pulse"></span>
+            <p class="text-2xl font-bold text-white">
+              <span v-if="loadingAnalytics" class="inline-block w-10 h-5 bg-dark-100 rounded animate-pulse"></span>
               <span v-else>{{ card.value }}</span>
             </p>
             <p class="text-sm text-gray-500">{{ card.label }}</p>
@@ -118,16 +118,16 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <!-- 每日行为趋势 -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 class="font-semibold text-gray-800 mb-4">每日行为趋势（近 {{ analyticsDays }} 天）</h3>
-        <div v-if="loadingAnalytics" class="h-32 bg-gray-50 rounded animate-pulse"></div>
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
+        <h3 class="font-semibold text-white mb-4">每日行为趋势（近 {{ analyticsDays }} 天）</h3>
+        <div v-if="loadingAnalytics" class="h-32 bg-dark-100 rounded animate-pulse"></div>
         <div v-else-if="dailyTrends.length === 0" class="h-32 flex items-center justify-center text-sm text-gray-400">暂无数据</div>
         <div v-else class="relative">
           <div class="flex items-end gap-1 h-32">
             <div
               v-for="item in dailyTrends"
               :key="item.date"
-              class="flex-1 bg-primary-400 rounded-t hover:bg-primary-500 transition-colors cursor-default group relative"
+              class="flex-1 bg-primary-400 rounded-t hover:bg-primary transition-colors cursor-default group relative"
               :style="{ height: barHeight(item.count, maxDailyCount) + '%', minHeight: '2px' }"
             >
               <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
@@ -143,17 +143,17 @@
       </div>
 
       <!-- 行为类型分布 -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 class="font-semibold text-gray-800 mb-4">行为类型分布</h3>
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
+        <h3 class="font-semibold text-white mb-4">行为类型分布</h3>
         <div v-if="loadingAnalytics" class="space-y-2">
-          <div v-for="i in 4" :key="i" class="h-4 bg-gray-100 rounded animate-pulse"></div>
+          <div v-for="i in 4" :key="i" class="h-4 bg-dark-100 rounded animate-pulse"></div>
         </div>
         <div v-else class="space-y-3">
           <div v-for="item in actionDistribution" :key="item.actionType" class="flex items-center gap-3">
             <span class="text-lg w-6 text-center">{{ actionIcon(item.actionType) }}</span>
-            <span class="text-sm text-gray-600 flex-1">{{ actionLabel(item.actionType) }}</span>
-            <span class="text-sm font-medium text-gray-800">{{ Number(item.count).toLocaleString() }}</span>
-            <div class="w-24 bg-gray-100 rounded-full h-1.5">
+            <span class="text-sm text-gray-400 flex-1">{{ actionLabel(item.actionType) }}</span>
+            <span class="text-sm font-medium text-white">{{ Number(item.count).toLocaleString() }}</span>
+            <div class="w-24 bg-dark-100 rounded-full h-1.5">
               <div class="h-1.5 rounded-full bg-indigo-400 transition-all" :style="{ width: actionPct(item.count) + '%' }"></div>
             </div>
           </div>
@@ -164,17 +164,17 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <!-- 热门机器人（行为日志） -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 class="font-semibold text-gray-800 mb-4">热门机器人（近 {{ analyticsDays }} 天浏览）</h3>
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
+        <h3 class="font-semibold text-white mb-4">热门机器人（近 {{ analyticsDays }} 天浏览）</h3>
         <div v-if="loadingAnalytics" class="space-y-2">
-          <div v-for="i in 5" :key="i" class="h-6 bg-gray-100 rounded animate-pulse"></div>
+          <div v-for="i in 5" :key="i" class="h-6 bg-dark-100 rounded animate-pulse"></div>
         </div>
         <div v-else class="space-y-2">
           <div v-for="(item, i) in topRobotsByLog" :key="item.robotId" class="flex items-center gap-3">
             <span class="text-xs text-gray-400 w-5 text-right">{{ i + 1 }}</span>
-            <span class="text-sm text-gray-700 flex-1 truncate">{{ item.robotName }}</span>
-            <span class="text-sm font-medium text-gray-800">{{ Number(item.viewCount).toLocaleString() }}</span>
-            <div class="w-16 bg-gray-100 rounded-full h-1.5">
+            <span class="text-sm text-gray-300 flex-1 truncate">{{ item.robotName }}</span>
+            <span class="text-sm font-medium text-white">{{ Number(item.viewCount).toLocaleString() }}</span>
+            <div class="w-16 bg-dark-100 rounded-full h-1.5">
               <div class="h-1.5 rounded-full bg-rose-400 transition-all" :style="{ width: robotPct(item.viewCount) + '%' }"></div>
             </div>
           </div>
@@ -183,17 +183,17 @@
       </div>
 
       <!-- 热门搜索词 -->
-      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 class="font-semibold text-gray-800 mb-4">热门搜索词（近 {{ analyticsDays }} 天）</h3>
+      <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
+        <h3 class="font-semibold text-white mb-4">热门搜索词（近 {{ analyticsDays }} 天）</h3>
         <div v-if="loadingAnalytics" class="space-y-2">
-          <div v-for="i in 5" :key="i" class="h-6 bg-gray-100 rounded animate-pulse"></div>
+          <div v-for="i in 5" :key="i" class="h-6 bg-dark-100 rounded animate-pulse"></div>
         </div>
         <div v-else class="space-y-2">
           <div v-for="(item, i) in topKeywords" :key="item.keyword" class="flex items-center gap-3">
             <span class="text-xs text-gray-400 w-5 text-right">{{ i + 1 }}</span>
-            <span class="text-sm text-gray-700 flex-1 truncate">{{ item.keyword }}</span>
-            <span class="text-sm font-medium text-gray-800">{{ Number(item.count).toLocaleString() }}</span>
-            <div class="w-16 bg-gray-100 rounded-full h-1.5">
+            <span class="text-sm text-gray-300 flex-1 truncate">{{ item.keyword }}</span>
+            <span class="text-sm font-medium text-white">{{ Number(item.count).toLocaleString() }}</span>
+            <div class="w-16 bg-dark-100 rounded-full h-1.5">
               <div class="h-1.5 rounded-full bg-amber-400 transition-all" :style="{ width: keywordPct(item.count) + '%' }"></div>
             </div>
           </div>
@@ -203,19 +203,19 @@
     </div>
 
     <!-- 快速操作 -->
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-      <h3 class="font-semibold text-gray-800 mb-4">快速操作</h3>
+    <div class="bg-dark-50 rounded-xl border border-white/[0.04]  p-6">
+      <h3 class="font-semibold text-white mb-4">快速操作</h3>
       <div class="flex flex-wrap gap-3">
-        <router-link to="/admin/robots/create" class="bg-primary-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors">
+        <router-link to="/admin/robots/create" class="bg-primary text-[#1a1a1a] text-sm px-4 py-2 rounded-lg hover:bg-primary transition-colors">
           + 添加机器人
         </router-link>
-        <router-link to="/admin/manufacturers" class="bg-gray-100 text-gray-700 text-sm px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+        <router-link to="/admin/manufacturers" class="bg-dark-100 text-gray-300 text-sm px-4 py-2 rounded-lg hover:bg-white/[0.06] transition-colors">
           管理厂商
         </router-link>
-        <router-link to="/robots" target="_blank" class="bg-gray-100 text-gray-700 text-sm px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+        <router-link to="/robots" target="_blank" class="bg-dark-100 text-gray-300 text-sm px-4 py-2 rounded-lg hover:bg-white/[0.06] transition-colors">
           查看前台 →
         </router-link>
-        <button @click="loadAll" class="bg-gray-100 text-gray-700 text-sm px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+        <button @click="loadAll" class="bg-dark-100 text-gray-300 text-sm px-4 py-2 rounded-lg hover:bg-white/[0.06] transition-colors">
           刷新数据
         </button>
       </div>
@@ -234,10 +234,10 @@ const stats = ref<any>(null)
 const statCards = computed(() => {
   const s = stats.value
   return [
-    { label: '机器人总数', icon: '🤖', iconBg: 'bg-primary-100 text-primary-600', value: s?.totalRobots ?? '-' },
-    { label: '厂商总数', icon: '🏭', iconBg: 'bg-green-100 text-green-600', value: s?.totalManufacturers ?? '-' },
-    { label: '注册用户', icon: '👤', iconBg: 'bg-blue-100 text-blue-600', value: s?.totalUsers ?? '-' },
-    { label: '总浏览量', icon: '👁', iconBg: 'bg-purple-100 text-purple-600', value: s?.totalViews?.toLocaleString() ?? '-' },
+    { label: '机器人总数', icon: '🤖', iconBg: 'bg-primary-100 text-primary', value: s?.totalRobots ?? '-' },
+    { label: '厂商总数', icon: '🏭', iconBg: 'bg-green-900/30 text-green-600', value: s?.totalManufacturers ?? '-' },
+    { label: '注册用户', icon: '👤', iconBg: 'bg-blue-900/30 text-blue-400', value: s?.totalUsers ?? '-' },
+    { label: '总浏览量', icon: '👁', iconBg: 'bg-purple-900/30 text-purple-600', value: s?.totalViews?.toLocaleString() ?? '-' },
   ]
 })
 
@@ -266,18 +266,18 @@ function statusLabel(s: string) {
 }
 function statusClass(s: string) {
   const map: Record<string, string> = {
-    active: 'bg-green-100 text-green-700',
-    discontinued: 'bg-gray-100 text-gray-500',
-    upcoming: 'bg-yellow-100 text-yellow-700'
+    active: 'bg-green-900/30 text-green-400',
+    discontinued: 'bg-dark-100 text-gray-500',
+    upcoming: 'bg-yellow-900/30 text-yellow-400'
   }
-  return map[s] ?? 'bg-gray-100 text-gray-500'
+  return map[s] ?? 'bg-dark-100 text-gray-500'
 }
 
 async function loadStats() {
   loadingStats.value = true
   try {
     const res: any = await adminService.getStats()
-    stats.value = res.data || res
+    stats.value = res.data ?? res ?? {}
   } catch (e) {
     console.error(e)
   } finally {
@@ -306,7 +306,7 @@ const analyticsCards = computed(() => {
     {
       label: '今日行为数',
       icon: '⚡',
-      iconBg: 'bg-orange-100 text-orange-600',
+      iconBg: 'bg-orange-900/30 text-orange-600',
       value: o?.todayActions?.toLocaleString() ?? '-'
     },
     {
@@ -371,10 +371,10 @@ async function loadAnalytics() {
       adminService.getAnalyticsTopRobots(analyticsDays.value, 10),
       adminService.getAnalyticsTopKeywords(analyticsDays.value, 10),
     ])
-    analyticsOverview.value = overviewRes.data || overviewRes
-    dailyTrends.value = trendsRes.data || trendsRes || []
-    topRobotsByLog.value = topRobotsRes.data || topRobotsRes || []
-    topKeywords.value = keywordsRes.data || keywordsRes || []
+    analyticsOverview.value = overviewRes.data ?? overviewRes ?? {}
+    dailyTrends.value = trendsRes.data ?? trendsRes ?? []
+    topRobotsByLog.value = topRobotsRes.data ?? topRobotsRes ?? []
+    topKeywords.value = keywordsRes.data ?? keywordsRes ?? []
   } catch (e) {
     console.error('Analytics load failed', e)
   } finally {

@@ -6,10 +6,12 @@ import com.lookforbest.entity.Manufacturer;
 import com.lookforbest.entity.Robot;
 import com.lookforbest.entity.RobotCategory;
 import com.lookforbest.exception.ResourceNotFoundException;
+import com.lookforbest.entity.RobotTag;
 import com.lookforbest.repository.ApplicationDomainRepository;
 import com.lookforbest.repository.ManufacturerRepository;
 import com.lookforbest.repository.RobotCategoryRepository;
 import com.lookforbest.repository.RobotRepository;
+import com.lookforbest.repository.RobotTagRepository;
 import com.lookforbest.service.ElasticsearchSyncService;
 import com.lookforbest.service.RobotService;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +41,11 @@ public class RobotServiceImpl implements RobotService {
     private final ManufacturerRepository manufacturerRepository;
     private final RobotCategoryRepository categoryRepository;
     private final ApplicationDomainRepository domainRepository;
+    private final RobotTagRepository tagRepository;
     private final ElasticsearchSyncService elasticsearchSyncService;
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfig.ROBOTS_LIST, key = "#root.methodName + '_' + #q + '_' + #categoryId + '_' + #manufacturerId + '_' + #sort + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
     public Page<Robot> findAll(String q, Long categoryId, Long manufacturerId, List<Long> domainIds,
                                 BigDecimal payloadMin, BigDecimal payloadMax,
                                 Integer reachMin, Integer reachMax,
@@ -83,16 +85,16 @@ public class RobotServiceImpl implements RobotService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfig.ROBOTS_DETAIL, key = "'slug_' + #slug")
+    @Transactional
     public Robot findBySlug(String slug) {
-        return robotRepository.findBySlug(slug)
+        Robot robot = robotRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Robot slug: " + slug));
+        robot.setViewCount((robot.getViewCount() == null ? 0 : robot.getViewCount()) + 1);
+        return robotRepository.save(robot);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfig.ROBOTS_SIMILAR, key = "#id + '_' + #size")
     public List<Robot> findSimilar(Long id, int size) {
         Robot robot = robotRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Robot", id));
@@ -123,8 +125,12 @@ public class RobotServiceImpl implements RobotService {
                 .orElseThrow(() -> new ResourceNotFoundException("Robot", id));
         existing.setName(updated.getName());
         existing.setNameEn(updated.getNameEn());
+        existing.setSubtitle(updated.getSubtitle());
         existing.setDescription(updated.getDescription());
         existing.setDescriptionEn(updated.getDescriptionEn());
+        existing.setIntroduction(updated.getIntroduction());
+        existing.setApplicationScenarios(updated.getApplicationScenarios());
+        existing.setAdvantages(updated.getAdvantages());
         existing.setPayloadKg(updated.getPayloadKg());
         existing.setReachMm(updated.getReachMm());
         existing.setDof(updated.getDof());
@@ -137,6 +143,13 @@ public class RobotServiceImpl implements RobotService {
         existing.setPriceRange(updated.getPriceRange());
         existing.setPriceUsdFrom(updated.getPriceUsdFrom());
         existing.setCoverImageUrl(updated.getCoverImageUrl());
+        existing.setContentImages(updated.getContentImages());
+        existing.setVideoUrls(updated.getVideoUrls());
+        if (updated.getTags() != null) {
+            existing.setTags(updated.getTags());
+        }
+        existing.setIsOpenSource(updated.getIsOpenSource());
+        existing.setListedDate(updated.getListedDate());
         existing.setExtraSpecs(updated.getExtraSpecs());
         if (updated.getApplicationDomains() != null) {
             existing.setApplicationDomains(updated.getApplicationDomains());
@@ -172,9 +185,13 @@ public class RobotServiceImpl implements RobotService {
         robot.setCategory(category);
         robot.setName(req.getName());
         robot.setNameEn(req.getNameEn());
+        robot.setSubtitle(req.getSubtitle());
         robot.setModelNumber(req.getModelNumber());
         robot.setDescription(req.getDescription());
         robot.setDescriptionEn(req.getDescriptionEn());
+        robot.setIntroduction(req.getIntroduction());
+        robot.setApplicationScenarios(req.getApplicationScenarios());
+        robot.setAdvantages(req.getAdvantages());
         robot.setReleaseYear(req.getReleaseYear());
         robot.setDof(req.getDof());
         robot.setPayloadKg(req.getPayloadKg());
@@ -192,8 +209,13 @@ public class RobotServiceImpl implements RobotService {
         robot.setWalkingSpeedMs(req.getWalkingSpeedMs());
         robot.setExtraSpecs(req.getExtraSpecs());
         robot.setCoverImageUrl(req.getCoverImageUrl());
-        if (req.getPriceRange() != null) {
-            robot.setPriceRange(Robot.PriceRange.valueOf(req.getPriceRange()));
+        robot.setContentImages(req.getContentImages());
+        robot.setVideoUrls(req.getVideoUrls());
+        robot.setIsOpenSource(req.getIsOpenSource());
+        robot.setListedDate(req.getListedDate());
+        robot.setPriceRange(req.getPriceRange());
+        if (req.getTagNames() != null && !req.getTagNames().isEmpty()) {
+            robot.setTags(resolveOrCreateTags(req.getTagNames()));
         }
         if (req.getStatus() != null) {
             robot.setStatus(Robot.RobotStatus.valueOf(req.getStatus()));
@@ -205,6 +227,25 @@ public class RobotServiceImpl implements RobotService {
         }
         robot.setSlug(generateSlug(manufacturer.getName() + "-" + req.getName()));
         return robot;
+    }
+
+    /** 根据标签名列表查找或创建标签实体 */
+    private Set<RobotTag> resolveOrCreateTags(List<String> tagNames) {
+        Set<RobotTag> tags = new HashSet<>();
+        for (String name : tagNames) {
+            String trimmed = name.trim();
+            if (trimmed.isEmpty()) continue;
+            RobotTag tag = tagRepository.findByName(trimmed).orElseGet(() -> {
+                RobotTag t = new RobotTag();
+                t.setName(trimmed);
+                t.setSlug(trimmed.toLowerCase()
+                        .replaceAll("[^\\w\\u4e00-\\u9fff]+", "-")
+                        .replaceAll("^-|-$", ""));
+                return tagRepository.save(t);
+            });
+            tags.add(tag);
+        }
+        return tags;
     }
 
     private String generateSlug(String input) {

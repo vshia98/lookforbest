@@ -8,6 +8,8 @@ export const useFavoritesStore = defineStore('favorites', () => {
   const favoriteIds = ref<Set<number>>(new Set())
   const favorites = ref<RobotListItem[]>([])
   const loading = ref(false)
+  /** 控制登录弹框 */
+  const showLoginModal = ref(false)
 
   function isFavorited(robotId: number) {
     return favoriteIds.value.has(robotId)
@@ -26,19 +28,28 @@ export const useFavoritesStore = defineStore('favorites', () => {
     }
   }
 
-  async function toggle(robotId: number) {
+  async function toggle(robotId: number): Promise<boolean> {
     const authStore = useAuthStore()
-    if (!authStore.isLoggedIn) return
+    if (!authStore.isLoggedIn) {
+      showLoginModal.value = true
+      return false
+    }
 
-    if (isFavorited(robotId)) {
-      await favoritesService.remove(robotId)
-      favoriteIds.value.delete(robotId)
-      favorites.value = favorites.value.filter(r => r.id !== robotId)
-    } else {
-      await favoritesService.add(robotId)
-      favoriteIds.value.add(robotId)
+    try {
+      if (isFavorited(robotId)) {
+        await favoritesService.remove(robotId)
+        favoriteIds.value.delete(robotId)
+        favorites.value = favorites.value.filter(r => r.id !== robotId)
+      } else {
+        await favoritesService.add(robotId)
+        favoriteIds.value.add(robotId)
+      }
+      return true
+    } catch (e) {
+      console.error('收藏操作失败:', e)
+      return false
     }
   }
 
-  return { favorites, loading, isFavorited, fetchFavorites, toggle }
+  return { favorites, loading, showLoginModal, isFavorited, fetchFavorites, toggle }
 })

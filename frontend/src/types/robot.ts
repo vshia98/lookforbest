@@ -63,12 +63,20 @@ export interface RobotDocument {
   language: string
 }
 
+export interface RobotTag {
+  id: number
+  name: string
+  slug: string
+}
+
 export interface RobotListItem {
   id: number
   name: string
   nameEn?: string
+  subtitle?: string
   modelNumber?: string
   slug: string
+  tags?: Array<RobotTag | string>
   coverImageUrl?: string
   manufacturer: Manufacturer
   category: Category
@@ -86,6 +94,14 @@ export interface RobotListItem {
 export interface RobotDetail extends RobotListItem {
   description?: string
   descriptionEn?: string
+  introduction?: string
+  applicationScenarios?: string
+  advantages?: string
+  contentImages?: Array<{ src: string; alt?: string }>
+  videoUrls?: string[]
+  detailTags?: RobotTag[]
+  isOpenSource?: string
+  listedDate?: string
   releaseYear?: number
   applicationDomains: ApplicationDomain[]
   specs: RobotSpecs
@@ -99,6 +115,7 @@ export interface RobotDetail extends RobotListItem {
   isVerified: boolean
   compareCount: number
   similarRobots?: RobotListItem[]
+  priceUsdFrom?: number
 }
 
 export interface RobotListParams {

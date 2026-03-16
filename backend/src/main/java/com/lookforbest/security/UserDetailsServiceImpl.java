@@ -22,10 +22,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
+        List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name().toUpperCase()));
+        // EMAIL_VERIFIED authority 用于区分是否给完整字段权限，防止未验证账号批量爬取
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            authorities.add(new SimpleGrantedAuthority("EMAIL_VERIFIED"));
+        }
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPasswordHash())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name().toUpperCase())))
+                .authorities(authorities)
                 .accountExpired(false)
                 .accountLocked(!user.getIsActive())
                 .credentialsExpired(false)

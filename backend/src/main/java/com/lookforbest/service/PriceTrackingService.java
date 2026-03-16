@@ -94,13 +94,13 @@ public class PriceTrackingService {
         List<Robot> robots = robotRepository.findAll();
         int count = 0;
         for (Robot robot : robots) {
-            if (robot.getPrice() != null) {
+            if (robot.getPriceUsdFrom() != null) {
                 RobotPriceHistory history = new RobotPriceHistory();
                 history.setRobotId(robot.getId());
-                history.setPrice(robot.getPrice());
+                history.setPrice(robot.getPriceUsdFrom());
                 history.setSource("daily_snapshot");
                 priceHistoryRepository.save(history);
-                checkAndTriggerAlerts(robot.getId(), robot.getPrice());
+                checkAndTriggerAlerts(robot.getId(), robot.getPriceUsdFrom());
                 count++;
             }
         }

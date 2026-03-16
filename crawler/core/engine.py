@@ -202,6 +202,7 @@ def run_source(source_id: int, triggered_by: str = "scheduler") -> CrawlResult:
                     "slug": slug,
                     "description": item.get("description", "")[:5000],
                     "cover_image_url": item.get("cover_image_url") or None,
+                    "source_url": detail_url,
                     "price_range": item.get("price_range", "inquiry"),
                     "status": item.get("status", "active"),
                     "payload_kg": parse_float(item.get("payload_kg")),
