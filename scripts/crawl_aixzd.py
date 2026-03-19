@@ -749,7 +749,8 @@ def main():
 
     # 4. 补抓缺失的厂商 logo（从官网 favicon）
     if not args.no_images:
-        fetch_missing_manufacturer_logos(conn if not conn.open else get_db_connection())
+        # 使用新的数据库连接，避免对已关闭连接继续操作
+        fetch_missing_manufacturer_logos()
 
 
 def fetch_missing_manufacturer_logos(conn=None):

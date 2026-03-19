@@ -31,6 +31,14 @@
             <input v-model="form.slug" class="input-dark" placeholder="自动生成" />
           </div>
           <div>
+            <label class="block text-sm text-gray-400 mb-1">一句话简介（中文）</label>
+            <input v-model="form.subtitle" class="input-dark" placeholder="列表卡片上的简短一句话" />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">一句话简介（英文）</label>
+            <input v-model="form.subtitleEn" class="input-dark" placeholder="Short English tagline for the card" />
+          </div>
+          <div>
             <label class="block text-sm text-gray-400 mb-1">厂商 <span class="text-red-500">*</span></label>
             <select v-model="form.manufacturerId" required class="input-dark">
               <option value="">请选择厂商</option>
@@ -74,6 +82,36 @@
         <div class="mt-4">
           <label class="block text-sm text-gray-400 mb-1">英文描述</label>
           <RichTextEditor v-model="form.descriptionEn" />
+        </div>
+
+        <!-- 产品介绍 -->
+        <div class="mt-4">
+          <label class="block text-sm text-gray-400 mb-1">产品介绍（中文）</label>
+          <RichTextEditor v-model="form.introduction" />
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm text-gray-400 mb-1">产品介绍（英文）</label>
+          <RichTextEditor v-model="form.introductionEn" />
+        </div>
+
+        <!-- 应用场景 -->
+        <div class="mt-4">
+          <label class="block text-sm text-gray-400 mb-1">应用场景（中文）</label>
+          <RichTextEditor v-model="form.applicationScenarios" />
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm text-gray-400 mb-1">应用场景（英文）</label>
+          <RichTextEditor v-model="form.applicationScenariosEn" />
+        </div>
+
+        <!-- 产品优势 -->
+        <div class="mt-4">
+          <label class="block text-sm text-gray-400 mb-1">产品优势（中文）</label>
+          <RichTextEditor v-model="form.advantages" />
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm text-gray-400 mb-1">产品优势（英文）</label>
+          <RichTextEditor v-model="form.advantagesEn" />
         </div>
       </div>
 
@@ -156,6 +194,8 @@ const categories = ref<any[]>([])
 const form = reactive({
   name: '',
   nameEn: '',
+  subtitle: '',
+  subtitleEn: '',
   modelNumber: '',
   slug: '',
   manufacturerId: '' as any,
@@ -165,6 +205,12 @@ const form = reactive({
   coverImageUrl: '',
   description: '',
   descriptionEn: '',
+   introduction: '',
+   introductionEn: '',
+   applicationScenarios: '',
+   applicationScenariosEn: '',
+   advantages: '',
+   advantagesEn: '',
   specs: {
     payloadKg: null as number | null,
     reachMm: null as number | null,
@@ -192,6 +238,8 @@ async function loadInitialData() {
       const robot = res.data || res
       form.name = robot.name
       form.nameEn = robot.nameEn || ''
+      form.subtitle = robot.subtitle || ''
+      form.subtitleEn = robot.subtitleEn || ''
       form.modelNumber = robot.modelNumber || ''
       form.slug = robot.slug || ''
       form.manufacturerId = robot.manufacturer?.id || ''
@@ -201,6 +249,12 @@ async function loadInitialData() {
       form.coverImageUrl = robot.coverImageUrl || ''
       form.description = robot.description || ''
       form.descriptionEn = robot.descriptionEn || ''
+      form.introduction = robot.introduction || ''
+      form.introductionEn = robot.introductionEn || ''
+      form.applicationScenarios = robot.applicationScenarios || ''
+      form.applicationScenariosEn = robot.applicationScenariosEn || ''
+      form.advantages = robot.advantages || ''
+      form.advantagesEn = robot.advantagesEn || ''
       if (robot.specs) Object.assign(form.specs, robot.specs)
     }
   } catch (e) {

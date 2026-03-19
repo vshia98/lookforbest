@@ -19,7 +19,7 @@ sleep 3
 
 # 第二步：申请 Let's Encrypt 证书
 echo "==> 申请 Let's Encrypt 证书..."
-docker compose -f "$COMPOSE_FILE" run --rm certbot certonly \
+docker compose -f "$COMPOSE_FILE" run --rm --entrypoint certbot certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email "$EMAIL" \

@@ -11,14 +11,16 @@
         <img
           v-if="robot.coverImageUrl"
           :src="robot.coverImageUrl"
-          :alt="robot.name"
+          :alt="displayName"
           class="relative w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
         />
         <div v-else class="relative w-full h-full flex items-center justify-center text-5xl text-gray-600">🤖</div>
         <!-- 底部渐隐 -->
         <div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-dark-50 to-transparent pointer-events-none"></div>
         <div class="absolute top-2 left-2 flex gap-1">
-          <span class="bg-primary/90 text-dark text-xs px-2.5 py-0.5 rounded-lg font-medium backdrop-blur-sm">{{ robot.category?.name }}</span>
+          <span class="bg-primary/90 text-dark text-xs px-2.5 py-0.5 rounded-lg font-medium backdrop-blur-sm">
+            {{ displayCategoryName }}
+          </span>
           <span v-if="robot.has3dModel" class="bg-accent-blue/90 text-white text-xs px-2 py-0.5 rounded-lg font-medium backdrop-blur-sm">3D</span>
         </div>
         <button
@@ -33,9 +35,20 @@
     <div class="p-4">
       <!-- Manufacturer -->
       <div class="flex items-center gap-2 mb-2">
-        <img v-if="robot.manufacturer?.logoUrl" :src="robot.manufacturer.logoUrl" :alt="robot.manufacturer.name" class="h-4 w-auto object-contain brightness-90" />
-        <span class="text-xs text-gray-500">{{ robot.manufacturer?.name }}</span>
-        <span class="text-xs text-gray-600 ml-auto">{{ robot.manufacturer?.country }}</span>
+        <img
+          v-if="robot.manufacturer?.logoUrl"
+          :src="robot.manufacturer.logoUrl"
+          :alt="displayManufacturerName"
+          class="h-4 w-auto object-contain brightness-90"
+        />
+        <span class="text-xs text-gray-500">{{ displayManufacturerName }}</span>
+        <span class="text-xs text-gray-600 ml-auto" v-if="robot.manufacturer">
+          {{
+            currentLocale === 'en'
+              ? (robot.manufacturer.countryEn || robot.manufacturer.country || '')
+              : (robot.manufacturer.country || '')
+          }}
+        </span>
       </div>
 
       <!-- Name -->
@@ -45,29 +58,55 @@
           class="font-semibold text-white hover:text-primary transition-colors line-clamp-1"
           v-html="highlights.name[0]"
         />
-        <h3 v-else class="font-semibold text-white hover:text-primary transition-colors line-clamp-1">{{ robot.name }}</h3>
+        <h3 v-else class="font-semibold text-white hover:text-primary transition-colors line-clamp-1">
+          {{ displayName }}
+        </h3>
       </router-link>
-      <p v-if="robot.subtitle" class="text-xs text-gray-500 mt-0.5 line-clamp-1">{{ robot.subtitle }}</p>
-      <p v-else-if="robot.nameEn && robot.nameEn !== robot.name" class="text-xs text-gray-500 mt-0.5">{{ robot.nameEn }}</p>
+      <!-- Subtitle / secondary line -->
       <p
-        v-if="highlights?.description"
+        v-if="currentLocale === 'en' && robot.subtitleEn"
+        class="text-xs text-gray-500 mt-0.5 line-clamp-1"
+      >
+        {{ robot.subtitleEn }}
+      </p>
+      <p
+        v-else-if="currentLocale === 'zh' && robot.subtitle"
+        class="text-xs text-gray-500 mt-0.5 line-clamp-1"
+      >
+        {{ robot.subtitle }}
+      </p>
+      <p v-else-if="secondaryName" class="text-xs text-gray-500 mt-0.5 line-clamp-1">
+        {{ secondaryName }}
+      </p>
+
+      <!-- Short description -->
+      <!-- 中文：优先使用搜索高亮的中文描述；其后回退到 description -->
+      <!-- 英文：使用 descriptionEn（长一点的英文简介），subtitleEn 保持一句话 tagline -->
+      <p
+        v-if="currentLocale === 'zh' && (highlights?.description || robot.description)"
         class="text-xs text-gray-500 mt-1 line-clamp-2"
-        v-html="highlights.description[0]"
+        v-html="highlights?.description ? highlights.description[0] : robot.description"
       />
+      <p
+        v-else-if="currentLocale === 'en' && robot.descriptionEn"
+        class="text-xs text-gray-500 mt-1 line-clamp-2"
+      >
+        {{ robot.descriptionEn }}
+      </p>
 
       <!-- Specs -->
       <div class="mt-3 grid grid-cols-3 gap-2 text-center">
         <div v-if="robot.payloadKg" class="bg-dark-100 rounded-lg p-2 border border-white/[0.04]">
           <div class="text-sm font-semibold text-primary-400">{{ robot.payloadKg }}kg</div>
-          <div class="text-xs text-gray-600">载荷</div>
+          <div class="text-xs text-gray-600">{{ t('robot.payload') }}</div>
         </div>
         <div v-if="robot.reachMm" class="bg-dark-100 rounded-lg p-2 border border-white/[0.04]">
           <div class="text-sm font-semibold text-primary-400">{{ robot.reachMm }}mm</div>
-          <div class="text-xs text-gray-600">工作半径</div>
+          <div class="text-xs text-gray-600">{{ t('robot.reach') }}</div>
         </div>
         <div v-if="robot.dof" class="bg-dark-100 rounded-lg p-2 border border-white/[0.04]">
           <div class="text-sm font-semibold text-primary-400">{{ robot.dof }} DOF</div>
-          <div class="text-xs text-gray-600">自由度</div>
+          <div class="text-xs text-gray-600">{{ t('robot.dof') }}</div>
         </div>
       </div>
 
@@ -80,7 +119,7 @@
           class="text-xs px-3 py-1 rounded-full border transition-all"
           :class="isInCompare ? 'border-primary/50 text-primary bg-primary/10 cursor-default' : 'border-white/10 text-gray-500 hover:border-primary/40 hover:text-primary'"
         >
-          {{ isInCompare ? '已对比' : '+ 对比' }}
+          {{ isInCompare ? t('compare.title') : '+ ' + t('compare.addRobot') }}
         </button>
       </div>
     </div>
@@ -89,6 +128,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { RobotListItem } from '@/types/robot'
 import { useRobotStore } from '@/stores/robot'
 import { useFavoritesStore } from '@/stores/favorites'
@@ -100,6 +140,46 @@ const props = defineProps<{
 
 const robotStore = useRobotStore()
 const favoritesStore = useFavoritesStore()
+const { t, locale } = useI18n()
+
+const currentLocale = computed(() => (locale.value || 'zh') as 'zh' | 'en')
+
+const displayName = computed(() => {
+  if (currentLocale.value === 'en' && props.robot.nameEn) {
+    return props.robot.nameEn
+  }
+  return props.robot.name
+})
+
+const secondaryName = computed(() => {
+  if (currentLocale.value === 'en') {
+    // 英文主标题已经是 nameEn，副标题不再重复
+    return null
+  }
+  // 中文界面下，如果有英文名且不同于中文名，则显示为副标题
+  if (props.robot.nameEn && props.robot.nameEn !== props.robot.name) {
+    return props.robot.nameEn
+  }
+  return null
+})
+
+const displayManufacturerName = computed(() => {
+  const m = props.robot.manufacturer as any
+  if (!m) return ''
+  if (currentLocale.value === 'en' && m.nameEn) {
+    return m.nameEn
+  }
+  return m.name || ''
+})
+
+const displayCategoryName = computed(() => {
+  const c = props.robot.category as any
+  if (!c) return ''
+  if (currentLocale.value === 'en' && c.nameEn) {
+    return c.nameEn
+  }
+  return c.name || ''
+})
 
 const isInCompare = computed(() => robotStore.compareList.some(r => r.id === props.robot.id))
 const isFavorited = computed(() => favoritesStore.isFavorited(props.robot.id))

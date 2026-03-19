@@ -2,8 +2,10 @@
   <div class="max-w-7xl mx-auto px-4 py-8">
     <!-- 页头 -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-white">机器人产品库</h1>
-      <p class="text-gray-500 mt-1">共 {{ total }} 款产品</p>
+      <h1 class="text-2xl font-bold text-white">{{ t('nav.robots') }}</h1>
+      <p class="text-gray-500 mt-1">
+        {{ t('common.all') }} {{ total }} {{ t('robots.label') || '' }}
+      </p>
     </div>
 
     <!-- 顶部广告 -->
@@ -26,7 +28,7 @@
           <SearchBox
             v-model="filters.q"
             class="flex-1"
-            placeholder="搜索机器人名称、型号、厂商..."
+            :placeholder="t('home.searchPlaceholder')"
             @search="onSearch"
           />
           <select
@@ -34,20 +36,22 @@
             @change="loadRobots"
             class="bg-dark-50 border border-white/[0.06] rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
-            <option value="relevance">综合排序</option>
-            <option value="newest">最新上架</option>
-            <option value="popular">最受欢迎</option>
+            <option value="relevance">{{ t('filter.sort_relevance') }}</option>
+            <option value="newest">{{ t('filter.sort_newest') }}</option>
+            <option value="popular">{{ t('filter.sort_viewCount') }}</option>
           </select>
         </div>
 
         <!-- 加载中 -->
-        <LoadingSpinner v-if="loading" text="加载中..." />
+        <LoadingSpinner v-if="loading" :text="t('common.loading')" />
 
         <!-- 空状态 -->
         <div v-else-if="robots.length === 0" class="text-center py-20">
           <div class="text-5xl mb-4">🤖</div>
-          <p class="text-gray-500">未找到符合条件的机器人</p>
-          <button @click="resetFilters" class="mt-4 text-primary hover:underline text-sm">清除筛选条件</button>
+          <p class="text-gray-500">{{ t('common.noData') }}</p>
+          <button @click="resetFilters" class="mt-4 text-primary hover:underline text-sm">
+            {{ t('filter.reset') || t('common.reset') }}
+          </button>
         </div>
 
         <!-- 机器人网格 -->
@@ -71,7 +75,7 @@
             @click="changePage(currentPage - 1)"
             class="px-4 py-2 rounded-lg border border-white/10 text-sm text-gray-400 disabled:opacity-40 hover:border-primary/30 hover:text-primary transition-all"
           >
-            上一页
+            {{ t('common.back') }}
           </button>
           <template v-for="p in pageNumbers" :key="p">
             <span v-if="p === '...'" class="px-2 text-gray-600">...</span>
@@ -89,7 +93,7 @@
             @click="changePage(currentPage + 1)"
             class="px-4 py-2 rounded-lg border border-white/10 text-sm text-gray-400 disabled:opacity-40 hover:border-primary/30 hover:text-primary transition-all"
           >
-            下一页
+            {{ t('common.more') }}
           </button>
         </div>
       </div>
@@ -99,6 +103,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import RobotCard from '@/components/robot/RobotCard.vue'
 import AdCard from '@/components/ui/AdCard.vue'
@@ -109,6 +114,8 @@ import SearchBox from '@/components/ui/SearchBox.vue'
 import http from '@/services/api'
 import { robotService, searchService, adService } from '@/services/robots'
 import type { RobotListItem } from '@/types/robot'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -184,6 +191,9 @@ async function loadRobots() {
         id: Number(h.id),
         name: h.name,
         nameEn: h.nameEn,
+        // 简短描述：中英文都带上，卡片组件会根据当前语言选择 description 或 descriptionEn
+        description: h.description || '',
+        descriptionEn: h.descriptionEn || '',
         slug: h.slug,
         modelNumber: h.modelNumber,
         coverImageUrl: h.coverImageUrl,
@@ -191,8 +201,18 @@ async function loadRobots() {
         has3dModel: h.has3dModel ?? false,
         viewCount: h.viewCount ?? 0,
         isFeatured: h.isFeatured ?? false,
-        manufacturer: { id: h.manufacturerId || 0, name: h.manufacturerName || '', country: '' },
-        category: { id: h.categoryId || 0, name: h.categoryName || '', slug: '' }
+        manufacturer: {
+          id: h.manufacturerId || 0,
+          name: h.manufacturerName || '',
+          nameEn: h.manufacturerNameEn || '',
+          country: '',
+        },
+        category: {
+          id: h.categoryId || 0,
+          name: h.categoryName || '',
+          nameEn: h.categoryNameEn || '',
+          slug: '',
+        }
       }))
       total.value = esData.total || 0
       totalPages.value = esData.totalPages || 1

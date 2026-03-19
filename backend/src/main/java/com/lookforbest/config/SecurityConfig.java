@@ -61,6 +61,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/lookforbest/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/robots/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/robots/*/recommend").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()

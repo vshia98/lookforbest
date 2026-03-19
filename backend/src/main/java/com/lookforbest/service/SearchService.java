@@ -84,6 +84,7 @@ public class SearchService {
                             "name^4",
                             "nameEn^3",
                             "manufacturerName^2",
+                            "manufacturerNameEn^2",
                             "modelNumber^3",
                             "description^1",
                             "descriptionEn^1"
@@ -130,7 +131,8 @@ public class SearchService {
                 new HighlightField("name"),
                 new HighlightField("nameEn"),
                 new HighlightField("description"),
-                new HighlightField("manufacturerName")
+                new HighlightField("manufacturerName"),
+                new HighlightField("manufacturerNameEn")
         );
         HighlightParameters highlightParams = HighlightParameters.builder()
                 .withPreTags("<em class=\"highlight\">")
@@ -159,8 +161,13 @@ public class SearchService {
             item.put("modelNumber", doc.getModelNumber());
             item.put("categoryId", doc.getCategoryId());
             item.put("categoryName", doc.getCategoryName());
+            item.put("categoryNameEn", doc.getCategoryNameEn());
             item.put("manufacturerId", doc.getManufacturerId());
             item.put("manufacturerName", doc.getManufacturerName());
+            item.put("manufacturerNameEn", doc.getManufacturerNameEn());
+            // 简要描述：同时返回中英文，供前端卡片在不同语言下展示
+            item.put("description", doc.getDescription());
+            item.put("descriptionEn", doc.getDescriptionEn());
             item.put("coverImageUrl", doc.getCoverImageUrl());
             item.put("priceRange", doc.getPriceRange());
             item.put("has3dModel", doc.getHas3dModel());
@@ -267,8 +274,10 @@ public class SearchService {
                 item.put("modelNumber", r.getModelNumber());
                 item.put("categoryId", r.getCategory() != null ? r.getCategory().getId() : null);
                 item.put("categoryName", r.getCategory() != null ? r.getCategory().getName() : null);
+                item.put("categoryNameEn", r.getCategory() != null ? r.getCategory().getNameEn() : null);
                 item.put("manufacturerId", r.getManufacturer() != null ? r.getManufacturer().getId() : null);
                 item.put("manufacturerName", r.getManufacturer() != null ? r.getManufacturer().getName() : null);
+                item.put("manufacturerNameEn", r.getManufacturer() != null ? r.getManufacturer().getNameEn() : null);
                 item.put("coverImageUrl", r.getCoverImageUrl());
                 item.put("priceRange", r.getPriceRange());
                 item.put("has3dModel", r.getHas3dModel());

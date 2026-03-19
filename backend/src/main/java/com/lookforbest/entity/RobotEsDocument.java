@@ -44,11 +44,17 @@ public class RobotEsDocument {
     @Field(type = FieldType.Keyword)
     private String categoryName;
 
+    @Field(type = FieldType.Keyword)
+    private String categoryNameEn;
+
     @Field(type = FieldType.Long)
     private Long categoryId;
 
     @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     private String manufacturerName;
+
+    @Field(type = FieldType.Text, analyzer = "english")
+    private String manufacturerNameEn;
 
     @Field(type = FieldType.Long)
     private Long manufacturerId;
@@ -102,6 +108,9 @@ public class RobotEsDocument {
         if (robot.getManufacturer() != null && robot.getManufacturer().getName() != null) {
             suggestions.add(robot.getManufacturer().getName());
         }
+        if (robot.getManufacturer() != null && robot.getManufacturer().getNameEn() != null) {
+            suggestions.add(robot.getManufacturer().getNameEn());
+        }
 
         return RobotEsDocument.builder()
                 .id(String.valueOf(robot.getId()))
@@ -112,8 +121,10 @@ public class RobotEsDocument {
                 .descriptionEn(robot.getDescriptionEn())
                 .modelNumber(robot.getModelNumber())
                 .categoryName(robot.getCategory() != null ? robot.getCategory().getName() : null)
+                .categoryNameEn(robot.getCategory() != null ? robot.getCategory().getNameEn() : null)
                 .categoryId(robot.getCategory() != null ? robot.getCategory().getId() : null)
                 .manufacturerName(robot.getManufacturer() != null ? robot.getManufacturer().getName() : null)
+                .manufacturerNameEn(robot.getManufacturer() != null ? robot.getManufacturer().getNameEn() : null)
                 .manufacturerId(robot.getManufacturer() != null ? robot.getManufacturer().getId() : null)
                 .status(robot.getStatus() != null ? robot.getStatus().name() : null)
                 .payloadKg(robot.getPayloadKg())

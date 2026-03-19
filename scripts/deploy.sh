@@ -50,7 +50,7 @@ info "环境变量检查通过 (DOMAIN=${DOMAIN})"
 # ---- 构建镜像 ----
 if [ "$SKIP_BUILD" = false ]; then
   info "构建 Docker 镜像..."
-  docker compose build --no-cache backend frontend nginx recommend
+  docker compose build --no-cache backend frontend recommend elasticsearch
 else
   warn "跳过构建（--skip-build）"
 fi
@@ -60,7 +60,7 @@ info "启动基础服务（MySQL / Redis / MinIO）..."
 docker compose up -d mysql redis minio
 
 info "等待基础服务就绪..."
-for svc in mysql redis minio; do
+for svc in mysql redis; do
   echo -n "  等待 $svc..."
   for i in $(seq 1 30); do
     status=$(docker inspect --format='{{.State.Health.Status}}' "lookforbest-${svc}" 2>/dev/null || echo "unknown")
@@ -74,6 +74,20 @@ for svc in mysql redis minio; do
     fi
     sleep 3
   done
+done
+
+echo -n "  等待 minio..."
+for i in $(seq 1 40); do
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:9000/minio/health/live" || echo "000")
+  if [ "$HTTP_CODE" = "200" ]; then
+    echo " OK"
+    break
+  fi
+  if [ $i -eq 40 ]; then
+    echo " TIMEOUT"
+    error "minio 健康检查超时，请检查日志：docker compose logs minio"
+  fi
+  sleep 3
 done
 
 # ---- 启动后端与推荐服务 ----
@@ -94,20 +108,15 @@ for i in $(seq 1 40); do
   sleep 5
 done
 
-# ---- 启动前端与 Nginx ----
-info "启动前端与 Nginx..."
-docker compose up -d frontend nginx
+# ---- 启动前端（由宝塔 Nginx 反向代理访问）----
+info "启动前端..."
+docker compose up -d frontend
 
 sleep 5
 
 # ---- SSL 证书 ----
-if [ "$SKIP_SSL" = false ] && [ "${DOMAIN}" != "localhost" ]; then
-  EMAIL="${SSL_EMAIL:-admin@${DOMAIN}}"
-  info "申请 SSL 证书（域名：${DOMAIN}，邮箱：${EMAIL}）..."
-  DOMAIN="${DOMAIN}" EMAIL="${EMAIL}" "$SCRIPT_DIR/ssl-init.sh" || warn "SSL 申请失败，服务已启动（使用自签名证书），请手动处理 SSL"
-else
-  warn "跳过 SSL（DOMAIN=${DOMAIN} 或 --skip-ssl 已设置）"
-fi
+# 说明：当前服务器通过宝塔 Nginx 管理 SSL 证书，本脚本不再自动申请/续期证书。
+warn "SSL 证书请在宝塔面板中为域名 ${DOMAIN} 配置（本脚本不再调用 ssl-init.sh）"
 
 # ---- 验证部署 ----
 info "验证服务状态..."

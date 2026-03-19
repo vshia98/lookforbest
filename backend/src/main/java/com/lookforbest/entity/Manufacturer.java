@@ -25,6 +25,9 @@ public class Manufacturer {
     @Column(nullable = false, length = 100)
     private String country;
 
+    @Column(name = "country_en", length = 100)
+    private String countryEn;
+
     @Column(name = "country_code", length = 2)
     private String countryCode;
 

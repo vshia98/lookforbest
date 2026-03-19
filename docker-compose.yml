@@ -12,7 +12,8 @@ services:
       MYSQL_USER: ${DB_USERNAME:-lookforbest}
       MYSQL_PASSWORD: ${DB_PASSWORD:-lookforbest}
     ports:
-      - "127.0.0.1:3306:3306"
+      # 为避免与主机上已有 MySQL 冲突，映射到本机 13306 端口
+      - "127.0.0.1:13306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
@@ -24,7 +25,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USERNAME:-lookforbest}", "-p${DB_PASSWORD:-lookforbest}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
 
   # Redis 缓存
   redis:
@@ -32,15 +34,16 @@ services:
     container_name: lookforbest-redis
     restart: unless-stopped
     command: >
-      sh -c "if [ -n '$$REDIS_PASSWORD' ]; then
-               redis-server --requirepass $$REDIS_PASSWORD;
+      sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then
+               redis-server --requirepass \"$$REDIS_PASSWORD\";
              else
                redis-server;
              fi"
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     ports:
-      - "127.0.0.1:6379:6379"
+      # 为避免与主机上已有 Redis 冲突，映射到本机 16379 端口
+      - "127.0.0.1:16379:6379"
     volumes:
       - redis_data:/data
     deploy:
@@ -49,8 +52,8 @@ services:
           memory: 256m
     healthcheck:
       test: >
-        sh -c "if [ -n '$$REDIS_PASSWORD' ]; then
-                 redis-cli -a $$REDIS_PASSWORD ping;
+        sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then
+                 redis-cli -a \"$$REDIS_PASSWORD\" ping;
                else
                  redis-cli ping;
                fi"
@@ -76,15 +79,12 @@ services:
       resources:
         limits:
           memory: 512m
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # Elasticsearch（含 IK 中文分词插件）
   elasticsearch:
-    image: elasticsearch:8.13.4
+    build:
+      context: .
+      dockerfile: elasticsearch/Dockerfile
     container_name: lookforbest-elasticsearch
     restart: unless-stopped
     environment:
@@ -96,7 +96,6 @@ services:
       - "127.0.0.1:9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
-      - ./scripts/es-init.sh:/usr/local/bin/es-init.sh
     deploy:
       resources:
         limits:
@@ -121,12 +120,12 @@ services:
       redis:
         condition: service_healthy
       minio:
-        condition: service_healthy
+        condition: service_started
       elasticsearch:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:mysql://mysql:3306/lookforbest?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+      DB_URL: jdbc:mysql://mysql:3306/lookforbest?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
       DB_USERNAME: ${DB_USERNAME:-lookforbest}
       DB_PASSWORD: ${DB_PASSWORD:-lookforbest}
       REDIS_HOST: redis
@@ -167,50 +166,13 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-
-  # Nginx 反向代理 + SSL 终止
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: lookforbest-nginx
-    restart: unless-stopped
-    depends_on:
-      - frontend
-      - backend
-    environment:
-      DOMAIN: ${DOMAIN:-localhost}
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    command: >
-      sh -c "while :; do sleep 6h & wait $${!}; nginx -s reload; done &
-             /entrypoint.sh"
+      # 仅在本机监听 8081，用于由宝塔 Nginx 反向代理
+      - "127.0.0.1:8081:80"
     deploy:
       resources:
         limits:
           memory: 128m
-
-  # Certbot（SSL 证书申请与自动续期）
-  certbot:
-    image: certbot/certbot:latest
-    container_name: lookforbest-certbot
-    volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    entrypoint: >
-      sh -c "trap exit TERM;
-             while :; do
-               certbot renew --quiet --webroot --webroot-path=/var/www/certbot;
-               sleep 12h & wait $${!};
-             done"
 
   # AI 推荐服务
   recommend:
@@ -235,6 +197,12 @@ services:
       resources:
         limits:
           memory: 512m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   # 配置化爬虫服务
   crawler:
@@ -262,7 +230,7 @@ services:
       mysql:
         condition: service_healthy
       minio:
-        condition: service_healthy
+        condition: service_started
     deploy:
       resources:
         limits:
@@ -270,13 +238,12 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 15s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
   mysql_data:
   redis_data:
   minio_data:
   elasticsearch_data:
-  certbot_conf:
-  certbot_www:

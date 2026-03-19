@@ -36,6 +36,7 @@ const router = createRouter({
         { path: 'robots', name: 'admin-robots', component: () => import('@/pages/admin/RobotsPage.vue') },
         { path: 'robots/create', name: 'admin-robot-create', component: () => import('@/pages/admin/RobotFormPage.vue') },
         { path: 'robots/:id/edit', name: 'admin-robot-edit', component: () => import('@/pages/admin/RobotFormPage.vue') },
+        { path: 'robot-tags', name: 'admin-robot-tags', component: () => import('@/pages/admin/RobotTagsPage.vue') },
         { path: 'manufacturers', name: 'admin-manufacturers', component: () => import('@/pages/admin/ManufacturersPage.vue') },
         { path: 'inquiries', name: 'admin-inquiries', component: () => import('@/pages/admin/InquiriesPage.vue') },
         { path: 'announcement', name: 'admin-announcement', component: () => import('@/pages/admin/AnnouncementPage.vue') },

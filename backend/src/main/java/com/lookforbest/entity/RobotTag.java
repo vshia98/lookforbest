@@ -19,6 +19,9 @@ public class RobotTag {
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
+    @Column(name = "name_en", length = 100)
+    private String nameEn;
+
     @Column(nullable = false, unique = true, length = 100)
     private String slug;
 

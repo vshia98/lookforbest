@@ -1,7 +1,9 @@
 <template>
   <div class="bg-dark-50 rounded-xl border border-white/[0.04] p-5">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-semibold text-white">价格趋势（近90天）</h3>
+      <h3 class="font-semibold text-white">
+        {{ t('robot.priceTrendTitle') }}
+      </h3>
       <div v-if="latestPrice" class="text-right">
         <div class="text-2xl font-bold text-accent-gold">¥{{ latestPrice.toLocaleString() }}</div>
         <div v-if="priceChange !== null" class="text-sm" :class="priceChange <= 0 ? 'text-primary' : 'text-accent-red'">
@@ -12,7 +14,7 @@
 
     <!-- 无数据 -->
     <div v-if="chartData.length === 0" class="h-40 flex items-center justify-center text-gray-500 text-sm bg-dark-100 rounded-lg border border-white/[0.04]">
-      暂无价格历史数据
+      {{ t('robot.priceHistoryEmpty') }}
     </div>
 
     <!-- 简易价格折线图（Canvas） -->
@@ -24,7 +26,7 @@
         <input
           v-model="alertPriceInput"
           type="number"
-          placeholder="目标价格（元）"
+          :placeholder="t('robot.priceAlertPlaceholder')"
           class="input-dark flex-1"
         />
         <button
@@ -32,12 +34,16 @@
           :disabled="!alertPriceInput"
           class="px-4 py-2 bg-primary text-gray-900 text-sm font-medium rounded-lg hover:bg-primary-400 disabled:opacity-40 transition-all"
         >
-          设置降价提醒
+          {{ t('robot.priceAlertButton') }}
         </button>
       </div>
       <div v-else class="flex items-center justify-between text-sm">
-        <span class="text-primary">✓ 已设置降价提醒：低于 ¥{{ alertPrice }} 通知我</span>
-        <button @click="cancelAlert" class="text-gray-500 hover:text-accent-red transition-colors">取消</button>
+        <span class="text-primary">
+          {{ t('robot.priceAlertSet', { price: alertPrice }) }}
+        </span>
+        <button @click="cancelAlert" class="text-gray-500 hover:text-accent-red transition-colors">
+          {{ t('robot.priceAlertCancel') }}
+        </button>
       </div>
     </div>
   </div>
@@ -45,6 +51,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface PricePoint {
   price: number
@@ -54,6 +61,8 @@ interface PricePoint {
 const props = defineProps<{
   robotId: number
 }>()
+
+const { t, locale } = useI18n()
 
 const chartData = ref<PricePoint[]>([])
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -161,8 +170,9 @@ function drawChart() {
   // X axis labels
   if (chartData.value.length >= 2) {
     ctx.fillStyle = '#6b7280'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left'
-    const firstDate = new Date(chartData.value[0].recordedAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-    const lastDate = new Date(chartData.value.at(-1)!.recordedAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+    const localeCode = (locale.value || 'zh') === 'en' ? 'en-US' as const : 'zh-CN' as const
+    const firstDate = new Date(chartData.value[0].recordedAt).toLocaleDateString(localeCode, { month: 'short', day: 'numeric' })
+    const lastDate = new Date(chartData.value.at(-1)!.recordedAt).toLocaleDateString(localeCode, { month: 'short', day: 'numeric' })
     ctx.fillText(firstDate, pad.left, H - 4)
     ctx.textAlign = 'right'
     ctx.fillText(lastDate, W - pad.right, H - 4)

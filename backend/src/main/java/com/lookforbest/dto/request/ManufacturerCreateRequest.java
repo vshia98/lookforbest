@@ -21,6 +21,9 @@ public class ManufacturerCreateRequest {
     @Size(max = 100)
     private String country;
 
+    @Size(max = 100)
+    private String countryEn;
+
     @Size(max = 10)
     private String countryCode;
 
@@ -34,4 +37,3 @@ public class ManufacturerCreateRequest {
     private String descriptionEn;
     private String headquarters;
 }
-

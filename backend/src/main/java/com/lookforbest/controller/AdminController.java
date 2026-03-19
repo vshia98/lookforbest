@@ -12,11 +12,13 @@ import com.lookforbest.entity.MembershipPlan;
 import com.lookforbest.entity.PaymentOrder;
 import com.lookforbest.entity.Robot;
 import com.lookforbest.entity.RobotReview;
+import com.lookforbest.entity.RobotTag;
 import com.lookforbest.entity.User;
 import com.lookforbest.repository.ManufacturerRepository;
 import com.lookforbest.repository.MembershipPlanRepository;
 import com.lookforbest.repository.RobotCategoryRepository;
 import com.lookforbest.repository.RobotRepository;
+import com.lookforbest.repository.RobotTagRepository;
 import com.lookforbest.repository.UserRepository;
 import com.lookforbest.service.AdService;
 import com.lookforbest.service.ManufacturerPortalService;
@@ -48,6 +50,7 @@ public class AdminController {
     private final UserRepository userRepository;
     private final ManufacturerRepository manufacturerRepository;
     private final RobotCategoryRepository categoryRepository;
+    private final RobotTagRepository robotTagRepository;
     private final UgcService ugcService;
     private final AdService adService;
     private final ManufacturerPortalService manufacturerPortalService;
@@ -320,6 +323,71 @@ public class AdminController {
         Long planId = Long.parseLong(body.get("planId").toString());
         int durationDays = body.containsKey("durationDays") ? Integer.parseInt(body.get("durationDays").toString()) : 30;
         membershipService.manualActivate(userId, planId, durationDays);
+        return ApiResponse.ok();
+    }
+
+    // ==================== 标签管理 ====================
+
+    /** 获取全部标签（按使用次数倒序） */
+    @GetMapping("/robot-tags")
+    public ApiResponse<List<Map<String, Object>>> listRobotTags() {
+        return ApiResponse.ok(
+                robotTagRepository.findAll(Sort.by(Sort.Direction.DESC, "usageCount"))
+                        .stream()
+                        .map(tag -> {
+                            Map<String, Object> m = new HashMap<>();
+                            m.put("id", tag.getId());
+                            m.put("name", tag.getName());
+                            m.put("nameEn", tag.getNameEn());
+                            m.put("slug", tag.getSlug());
+                            m.put("usageCount", tag.getUsageCount());
+                            m.put("createdAt", tag.getCreatedAt());
+                            return m;
+                        })
+                        .collect(Collectors.toList())
+        );
+    }
+
+    /** 创建或更新标签 */
+    @PostMapping("/robot-tags")
+    public ApiResponse<Map<String, Object>> createOrUpdateRobotTag(@RequestBody Map<String, Object> body) {
+        Long id = body.get("id") != null ? Long.parseLong(body.get("id").toString()) : null;
+        String name = (String) body.get("name");
+        String nameEn = (String) body.getOrDefault("nameEn", null);
+        String slug = (String) body.getOrDefault("slug", null);
+
+        if (name == null || name.isBlank()) {
+            return ApiResponse.error(400, "标签名称不能为空");
+        }
+
+        RobotTag tag = id != null
+                ? robotTagRepository.findById(id).orElse(new RobotTag())
+                : new RobotTag();
+
+        tag.setName(name.trim());
+        tag.setNameEn(nameEn != null && !nameEn.isBlank() ? nameEn.trim() : null);
+        if (slug != null && !slug.isBlank()) {
+            tag.setSlug(slug.trim());
+        }
+
+        RobotTag saved = robotTagRepository.save(tag);
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("id", saved.getId());
+        resp.put("name", saved.getName());
+        resp.put("nameEn", saved.getNameEn());
+        resp.put("slug", saved.getSlug());
+        resp.put("usageCount", saved.getUsageCount());
+        resp.put("createdAt", saved.getCreatedAt());
+        return ApiResponse.ok(resp);
+    }
+
+    /** 删除标签（仅在未引用或确认后使用） */
+    @DeleteMapping("/robot-tags/{id}")
+    public ApiResponse<Void> deleteRobotTag(@PathVariable Long id) {
+        if (!robotTagRepository.existsById(id)) {
+            return ApiResponse.error(404, "标签不存在");
+        }
+        robotTagRepository.deleteById(id);
         return ApiResponse.ok();
     }
 

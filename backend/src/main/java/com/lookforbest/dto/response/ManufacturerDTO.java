@@ -11,6 +11,7 @@ public class ManufacturerDTO {
     private String name;
     private String nameEn;
     private String country;
+    private String countryEn;
     private String countryCode;
     private String logoUrl;
     private String websiteUrl;
@@ -26,6 +27,7 @@ public class ManufacturerDTO {
                 .name(m.getName())
                 .nameEn(m.getNameEn())
                 .country(m.getCountry())
+                .countryEn(m.getCountryEn())
                 .countryCode(m.getCountryCode())
                 .logoUrl(m.getLogoUrl())
                 .websiteUrl(m.getWebsiteUrl())

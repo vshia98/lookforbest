@@ -25,12 +25,16 @@ public class RobotCreateRequest {
 
     private String nameEn;
     private String subtitle;
+    private String subtitleEn;
     private String modelNumber;
     private String description;
     private String descriptionEn;
     private String introduction;
+    private String introductionEn;
     private String applicationScenarios;
+    private String applicationScenariosEn;
     private String advantages;
+    private String advantagesEn;
     private Short releaseYear;
     private String status;
 

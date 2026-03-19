@@ -47,6 +47,7 @@ public class ManufacturerController {
         m.setName(request.getName());
         m.setNameEn(request.getNameEn());
         m.setCountry(request.getCountry());
+        m.setCountryEn(request.getCountryEn());
         m.setCountryCode(request.getCountryCode());
         m.setLogoUrl(request.getLogoUrl());
         m.setWebsiteUrl(request.getWebsiteUrl());
@@ -65,6 +66,7 @@ public class ManufacturerController {
         m.setName(request.getName());
         m.setNameEn(request.getNameEn());
         m.setCountry(request.getCountry());
+        m.setCountryEn(request.getCountryEn());
         m.setCountryCode(request.getCountryCode());
         m.setLogoUrl(request.getLogoUrl());
         m.setWebsiteUrl(request.getWebsiteUrl());

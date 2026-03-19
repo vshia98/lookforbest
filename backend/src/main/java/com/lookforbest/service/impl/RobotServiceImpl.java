@@ -186,12 +186,16 @@ public class RobotServiceImpl implements RobotService {
         robot.setName(req.getName());
         robot.setNameEn(req.getNameEn());
         robot.setSubtitle(req.getSubtitle());
+        robot.setSubtitleEn(req.getSubtitleEn());
         robot.setModelNumber(req.getModelNumber());
         robot.setDescription(req.getDescription());
         robot.setDescriptionEn(req.getDescriptionEn());
         robot.setIntroduction(req.getIntroduction());
+        robot.setIntroductionEn(req.getIntroductionEn());
         robot.setApplicationScenarios(req.getApplicationScenarios());
+        robot.setApplicationScenariosEn(req.getApplicationScenariosEn());
         robot.setAdvantages(req.getAdvantages());
+        robot.setAdvantagesEn(req.getAdvantagesEn());
         robot.setReleaseYear(req.getReleaseYear());
         robot.setDof(req.getDof());
         robot.setPayloadKg(req.getPayloadKg());

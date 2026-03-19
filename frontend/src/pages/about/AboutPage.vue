@@ -4,9 +4,11 @@
     <div class="text-center mb-16 relative">
       <div class="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
       <div class="relative">
-        <h1 class="text-4xl font-bold text-white mb-4">关于<span class="text-primary">寻优</span></h1>
+        <h1 class="text-4xl font-bold text-white mb-4">
+          关于<span class="text-primary">寻优 / RobotLas</span>
+        </h1>
         <p class="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          寻优是全球领先的机器人产品数据库与发现平台，致力于帮助用户高效检索、对比和选择最适合的机器人产品。
+          寻优（RobotLas）是全球领先的机器人产品数据库与发现平台，致力于帮助用户高效检索、对比和选择最适合的机器人产品。
         </p>
       </div>
     </div>

@@ -4,7 +4,8 @@
     <aside class="w-64 bg-dark-100 border-r border-white/[0.04] text-white flex flex-col">
       <div class="px-6 py-5 border-b border-white/[0.06]">
         <router-link to="/" class="text-xl font-bold text-white flex items-center gap-2">
-          <span class="text-primary drop-shadow-[0_0_6px_rgba(0,255,209,0.4)]">⚡</span> 寻优
+          <span class="text-primary drop-shadow-[0_0_6px_rgba(0,255,209,0.4)]">⚡</span>
+          <span>寻优 / RobotLas</span>
         </router-link>
         <p class="text-gray-500 text-xs mt-1">管理后台</p>
       </div>
@@ -56,6 +57,7 @@ const authStore = useAuthStore()
 const navItems = [
   { to: '/admin', icon: '📊', label: '仪表盘' },
   { to: '/admin/robots', icon: '🤖', label: '机器人管理' },
+  { to: '/admin/robot-tags', icon: '🏷️', label: '标签管理' },
   { to: '/admin/manufacturers', icon: '🏭', label: '厂商管理' },
   { to: '/admin/inquiries', icon: '📧', label: '询价管理' },
   { to: '/admin/announcement', icon: '📢', label: '系统公告' },

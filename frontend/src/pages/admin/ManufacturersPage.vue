@@ -66,7 +66,10 @@
               </div>
             </td>
             <td class="py-3 px-4 text-gray-400">{{ m.nameEn || '-' }}</td>
-            <td class="py-3 px-4 text-gray-400">{{ m.country || '-' }}</td>
+            <td class="py-3 px-4 text-gray-400">
+              {{ m.country || '-' }}
+              <span v-if="m.countryEn" class="text-xs text-gray-500 ml-1">/ {{ m.countryEn }}</span>
+            </td>
             <td class="py-3 px-4">
               <a v-if="m.websiteUrl" :href="m.websiteUrl" target="_blank" class="text-primary hover:underline text-xs">
                 访问官网
@@ -125,8 +128,12 @@
               <input v-model="formData.nameEn" class="input-dark" />
             </div>
             <div>
-              <label class="block text-sm text-gray-400 mb-1">国家/地区</label>
+              <label class="block text-sm text-gray-400 mb-1">国家/地区（中文）</label>
               <input v-model="formData.country" class="input-dark" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-400 mb-1">国家/地区（英文）</label>
+              <input v-model="formData.countryEn" class="input-dark" />
             </div>
             <div>
               <label class="block text-sm text-gray-400 mb-1">官网URL</label>
@@ -196,7 +203,7 @@ const editTarget = ref<any>(null)
 const formSubmitting = ref(false)
 const formError = ref('')
 const uploading = ref(false)
-const formData = reactive({ name: '', nameEn: '', country: '', websiteUrl: '', logoUrl: '' })
+const formData = reactive({ name: '', nameEn: '', country: '', countryEn: '', websiteUrl: '', logoUrl: '' })
 
 async function handleLogoUpload(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
@@ -242,9 +249,16 @@ function openForm(m: any) {
   editTarget.value = m
   formError.value = ''
   if (m) {
-    Object.assign(formData, { name: m.name, nameEn: m.nameEn || '', country: m.country || '', websiteUrl: m.websiteUrl || '', logoUrl: m.logoUrl || '' })
+    Object.assign(formData, {
+      name: m.name,
+      nameEn: m.nameEn || '',
+      country: m.country || '',
+      countryEn: m.countryEn || '',
+      websiteUrl: m.websiteUrl || '',
+      logoUrl: m.logoUrl || ''
+    })
   } else {
-    Object.assign(formData, { name: '', nameEn: '', country: '', websiteUrl: '', logoUrl: '' })
+    Object.assign(formData, { name: '', nameEn: '', country: '', countryEn: '', websiteUrl: '', logoUrl: '' })
   }
   showForm.value = true
 }

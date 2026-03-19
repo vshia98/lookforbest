@@ -3,7 +3,8 @@
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
         <router-link to="/" class="text-2xl font-bold text-white inline-flex items-center gap-2">
-          <span class="text-primary drop-shadow-[0_0_8px_rgba(0,255,209,0.5)]">⚡</span> 寻优
+          <span class="text-primary drop-shadow-[0_0_8px_rgba(0,255,209,0.5)]">⚡</span>
+          <span>{{ currentLocale === 'zh' ? '寻优' : 'RobotLas' }}</span>
         </router-link>
         <p class="text-gray-500 mt-2">创建新账户</p>
       </div>
@@ -45,12 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+const { locale } = useI18n()
+const currentLocale = computed(() => (locale.value || 'zh') as 'zh' | 'en')
 
 const form = reactive({ username: '', email: '', password: '', confirmPassword: '' })
 const error = ref('')

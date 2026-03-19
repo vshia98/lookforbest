@@ -13,15 +13,35 @@
             <span v-else class="text-4xl">🏭</span>
           </div>
           <div class="flex-1">
-            <h1 class="text-2xl font-bold text-white">{{ manufacturer.name }}</h1>
-            <p v-if="manufacturer.nameEn && manufacturer.nameEn !== manufacturer.name" class="text-gray-500 mt-0.5">{{ manufacturer.nameEn }}</p>
+            <h1 class="text-2xl font-bold text-white">
+              {{ currentLocale === 'en' && manufacturer.nameEn ? manufacturer.nameEn : manufacturer.name }}
+            </h1>
+            <p
+              v-if="currentLocale === 'zh' && manufacturer.nameEn && manufacturer.nameEn !== manufacturer.name"
+              class="text-gray-500 mt-0.5"
+            >
+              {{ manufacturer.nameEn }}
+            </p>
             <div class="flex items-center gap-4 mt-2">
-              <span class="text-sm text-gray-400">🌍 {{ manufacturer.country }}</span>
+              <span class="text-sm text-gray-400">
+                🌍
+                {{
+                  currentLocale === 'en'
+                    ? (manufacturer.countryEn || manufacturer.country)
+                    : manufacturer.country
+                }}
+              </span>
               <a v-if="manufacturer.websiteUrl" :href="manufacturer.websiteUrl" target="_blank" rel="noopener" class="text-sm text-primary hover:text-primary-400 transition-colors">
                 官方网站 →
               </a>
             </div>
-            <p v-if="manufacturer.description" class="text-sm text-gray-500 mt-3 line-clamp-2">{{ manufacturer.description }}</p>
+            <p v-if="manufacturer.description || manufacturer.descriptionEn" class="text-sm text-gray-500 mt-3 line-clamp-2">
+              {{
+                currentLocale === 'en'
+                  ? (manufacturer.descriptionEn || manufacturer.description)
+                  : manufacturer.description
+              }}
+            </p>
           </div>
         </div>
       </div>
@@ -46,7 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import RobotCard from '@/components/robot/RobotCard.vue'
@@ -60,6 +81,9 @@ const robots = ref<RobotListItem[]>([])
 const total = ref(0)
 const loading = ref(true)
 const robotsLoading = ref(false)
+
+const { locale } = useI18n()
+const currentLocale = computed(() => (locale.value || 'zh') as 'zh' | 'en')
 
 onMounted(async () => {
   const id = parseInt(route.params.id as string)

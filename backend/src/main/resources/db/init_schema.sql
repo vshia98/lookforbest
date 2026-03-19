@@ -274,6 +274,7 @@ CREATE TABLE IF NOT EXISTS `manufacturers` (
   `name` varchar(200) NOT NULL COMMENT '厂商中文名称',
   `name_en` varchar(200) DEFAULT NULL COMMENT '厂商英文名称',
   `country` varchar(100) NOT NULL COMMENT '所在国家（中文）',
+  `country_en` varchar(100) DEFAULT NULL COMMENT '所在国家（英文）',
   `country_code` char(2) DEFAULT NULL COMMENT '国家代码 ISO 3166-1 Alpha-2，如 CN/US/DE',
   `logo_url` varchar(500) DEFAULT NULL COMMENT '厂商 Logo 图片 URL',
   `website_url` varchar(500) DEFAULT NULL COMMENT '官网首页 URL',
@@ -536,6 +537,7 @@ CREATE TABLE IF NOT EXISTS `robot_tag_mappings` (
 CREATE TABLE IF NOT EXISTS `robot_tags` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
+  `name_en` varchar(100) DEFAULT NULL,
   `slug` varchar(100) NOT NULL,
   `usage_count` int DEFAULT '0' COMMENT '引用计数，方便排序',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -585,13 +587,17 @@ CREATE TABLE IF NOT EXISTS `robots` (
   `name` varchar(300) NOT NULL COMMENT '机器人中文名称',
   `name_en` varchar(300) DEFAULT NULL COMMENT '机器人英文名称',
   `subtitle` varchar(500) DEFAULT NULL,
+  `subtitle_en` varchar(500) DEFAULT NULL COMMENT '机器人英文一句话简介',
   `model_number` varchar(200) DEFAULT NULL COMMENT '型号编号，如：UR5e、GP4',
   `slug` varchar(300) NOT NULL COMMENT 'URL 友好唯一标识，用于 SEO 路由',
   `description` text COMMENT '中文详细描述',
   `description_en` text COMMENT '英文详细描述',
   `introduction` text,
+  `introduction_en` text,
   `application_scenarios` text,
+  `application_scenarios_en` text,
   `advantages` text,
+  `advantages_en` text,
   `release_year` smallint DEFAULT NULL COMMENT '发布年份',
   `status` enum('active','discontinued','upcoming') DEFAULT 'active' COMMENT '状态：active=在售，discontinued=停产，upcoming=即将发布',
   `dof` tinyint DEFAULT NULL COMMENT '自由度（Degrees of Freedom）',
@@ -801,4 +807,3 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-

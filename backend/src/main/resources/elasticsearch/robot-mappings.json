@@ -28,11 +28,19 @@
     },
     "modelNumber": { "type": "keyword" },
     "categoryName": { "type": "keyword" },
+    "categoryNameEn": { "type": "keyword" },
     "categoryId": { "type": "long" },
     "manufacturerName": {
       "type": "text",
       "analyzer": "ik_max_word",
       "search_analyzer": "ik_smart",
+      "fields": {
+        "keyword": { "type": "keyword", "ignore_above": 300 }
+      }
+    },
+    "manufacturerNameEn": {
+      "type": "text",
+      "analyzer": "english",
       "fields": {
         "keyword": { "type": "keyword", "ignore_above": 300 }
       }

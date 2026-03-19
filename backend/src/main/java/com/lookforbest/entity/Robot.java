@@ -41,6 +41,9 @@ public class Robot {
     @Column(length = 500)
     private String subtitle;
 
+    @Column(name = "subtitle_en", length = 500)
+    private String subtitleEn;
+
     @Column(name = "model_number", length = 200)
     private String modelNumber;
 
@@ -56,11 +59,20 @@ public class Robot {
     @Column(columnDefinition = "TEXT")
     private String introduction;
 
+    @Column(name = "introduction_en", columnDefinition = "TEXT")
+    private String introductionEn;
+
     @Column(name = "application_scenarios", columnDefinition = "TEXT")
     private String applicationScenarios;
 
+    @Column(name = "application_scenarios_en", columnDefinition = "TEXT")
+    private String applicationScenariosEn;
+
     @Column(columnDefinition = "TEXT")
     private String advantages;
+
+    @Column(name = "advantages_en", columnDefinition = "TEXT")
+    private String advantagesEn;
 
     @Column(name = "release_year")
     private Short releaseYear;

@@ -3,6 +3,7 @@ export interface Manufacturer {
   name: string
   nameEn?: string
   country: string
+  countryEn?: string
   logoUrl?: string
   websiteUrl?: string
 }
@@ -17,6 +18,7 @@ export interface Category {
 export interface ApplicationDomain {
   id: number
   name: string
+  nameEn?: string
   slug: string
 }
 
@@ -66,6 +68,7 @@ export interface RobotDocument {
 export interface RobotTag {
   id: number
   name: string
+  nameEn?: string
   slug: string
 }
 
@@ -74,6 +77,10 @@ export interface RobotListItem {
   name: string
   nameEn?: string
   subtitle?: string
+  subtitleEn?: string
+  // Short marketing text / overview; available in detail and list APIs
+  description?: string
+  descriptionEn?: string
   modelNumber?: string
   slug: string
   tags?: Array<RobotTag | string>
@@ -92,11 +99,12 @@ export interface RobotListItem {
 }
 
 export interface RobotDetail extends RobotListItem {
-  description?: string
-  descriptionEn?: string
   introduction?: string
+  introductionEn?: string
   applicationScenarios?: string
+  applicationScenariosEn?: string
   advantages?: string
+  advantagesEn?: string
   contentImages?: Array<{ src: string; alt?: string }>
   videoUrls?: string[]
   detailTags?: RobotTag[]
@@ -148,8 +156,8 @@ export interface RobotListResponse {
     totalPages: number
     hasNext: boolean
     facets?: {
-      categories: Array<{ id: number; name: string; count: number }>
-      manufacturers: Array<{ id: number; name: string; count: number }>
+      categories: Array<{ id: number; name: string; nameEn?: string; count: number }>
+      manufacturers: Array<{ id: number; name: string; nameEn?: string; count: number }>
     }
   }
 }

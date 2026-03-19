@@ -15,6 +15,9 @@ public class RobotSummaryDTO {
     private String name;
     private String nameEn;
     private String subtitle;
+    private String subtitleEn;
+    private String description;
+    private String descriptionEn;
     private String modelNumber;
     private String slug;
     private String coverImageUrl;
@@ -37,6 +40,9 @@ public class RobotSummaryDTO {
                 .name(r.getName())
                 .nameEn(r.getNameEn())
                 .subtitle(r.getSubtitle())
+                .subtitleEn(r.getSubtitleEn())
+                .description(r.getDescription())
+                .descriptionEn(r.getDescriptionEn())
                 .modelNumber(r.getModelNumber())
                 .slug(r.getSlug())
                 .coverImageUrl(r.getCoverImageUrl())
@@ -62,6 +68,9 @@ public class RobotSummaryDTO {
                 .name(r.getName())
                 .nameEn(r.getNameEn())
                 .subtitle(r.getSubtitle())
+                .subtitleEn(r.getSubtitleEn())
+                .description(r.getDescription())
+                .descriptionEn(r.getDescriptionEn())
                 .slug(r.getSlug())
                 .coverImageUrl(r.getCoverImageUrl())
                 .manufacturer(r.getManufacturer() != null ? ManufacturerSummaryDTO.from(r.getManufacturer()) : null)
@@ -77,15 +86,19 @@ public class RobotSummaryDTO {
     public static class ManufacturerSummaryDTO {
         private Long id;
         private String name;
+        private String nameEn;
         private String logoUrl;
         private String country;
+        private String countryEn;
 
         public static ManufacturerSummaryDTO from(com.lookforbest.entity.Manufacturer m) {
             return ManufacturerSummaryDTO.builder()
                     .id(m.getId())
                     .name(m.getName())
+                    .nameEn(m.getNameEn())
                     .logoUrl(m.getLogoUrl())
                     .country(m.getCountry())
+                    .countryEn(m.getCountryEn())
                     .build();
         }
     }
@@ -95,12 +108,14 @@ public class RobotSummaryDTO {
     public static class CategorySummaryDTO {
         private Long id;
         private String name;
+        private String nameEn;
         private String slug;
 
         public static CategorySummaryDTO from(com.lookforbest.entity.RobotCategory c) {
             return CategorySummaryDTO.builder()
                     .id(c.getId())
                     .name(c.getName())
+                    .nameEn(c.getNameEn())
                     .slug(c.getSlug())
                     .build();
         }

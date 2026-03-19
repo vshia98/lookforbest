@@ -5,7 +5,7 @@
         <!-- Logo -->
         <router-link to="/" class="flex items-center gap-2 font-bold text-xl text-white group">
           <span class="text-primary group-hover:drop-shadow-[0_0_8px_rgba(0,255,209,0.5)] transition-all">⚡</span>
-          <span>寻优</span>
+          <span>{{ currentLocale === 'zh' ? '寻优' : 'RobotLas' }}</span>
         </router-link>
 
         <!-- Search -->
@@ -14,7 +14,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="搜索机器人、厂商、型号..."
+              :placeholder="t('home.searchPlaceholder')"
               class="input-dark w-full pl-4 pr-10"
             />
             <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors">
@@ -25,26 +25,52 @@
 
         <!-- Nav -->
         <nav class="flex items-center gap-4">
-          <router-link to="/robots" class="text-sm text-gray-400 hover:text-primary transition-colors font-medium">机器人库</router-link>
+          <router-link to="/robots" class="text-sm text-gray-400 hover:text-primary transition-colors font-medium">
+            {{ t('nav.robots') }}
+          </router-link>
           <router-link to="/compare" class="text-sm text-gray-400 hover:text-primary transition-colors font-medium relative">
-            对比
+            {{ t('nav.compare') }}
             <span v-if="compareCount > 0" class="absolute -top-2 -right-3 bg-primary text-dark text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
               {{ compareCount }}
             </span>
           </router-link>
 
           <!-- Language -->
-          <button
-            @click="toggleLocale"
-            class="text-xs font-medium text-gray-500 hover:text-primary border border-white/10 hover:border-primary/30 px-2 py-1 rounded-lg transition-all"
-          >
-            {{ currentLocale === 'zh' ? 'EN' : '中' }}
-          </button>
+          <div class="relative" ref="langRef">
+            <button
+              @click="toggleLangMenu"
+              class="flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-primary border border-white/10 hover:border-primary/30 px-2.5 py-1 rounded-lg transition-all bg-dark-100/50"
+            >
+              <span>🌐</span>
+              <span class="hidden sm:inline">{{ currentLocaleLabel }}</span>
+              <span class="sm:hidden">{{ currentLocale.toUpperCase() }}</span>
+              <span class="text-[10px] text-gray-500">▼</span>
+            </button>
+            <div
+              v-if="showLangMenu"
+              class="absolute right-0 mt-2 w-32 glass rounded-xl shadow-xl border border-white/10 py-1 z-50"
+            >
+              <button
+                v-for="opt in localeOptions"
+                :key="opt.code"
+                @click="changeLocale(opt.code)"
+                class="w-full flex items-center justify-between px-3 py-1.5 text-xs text-gray-300 hover:text-primary hover:bg-white/5 transition-colors"
+                :class="opt.code === currentLocale ? 'bg-primary/10 text-primary' : ''"
+              >
+                <span>{{ opt.label }}</span>
+                <span class="text-[10px] text-gray-500">{{ opt.code.toUpperCase() }}</span>
+              </button>
+            </div>
+          </div>
 
           <!-- Not logged in -->
           <template v-if="!authStore.isLoggedIn">
-            <router-link to="/login" class="text-sm text-gray-400 hover:text-primary transition-colors">登录</router-link>
-            <router-link to="/register" class="btn-primary text-sm">注册</router-link>
+            <router-link to="/login" class="text-sm text-gray-400 hover:text-primary transition-colors">
+              {{ t('nav.login') }}
+            </router-link>
+            <router-link to="/register" class="btn-primary text-sm">
+              {{ t('nav.register') }}
+            </router-link>
           </template>
 
           <!-- Logged in -->
@@ -142,11 +168,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useRobotStore } from '@/stores/robot'
-import { setLocale, getLocale } from '@/locales'
 import { notificationService, type NotificationDTO } from '@/services/notifications'
+
+const { t, locale } = useI18n()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -155,7 +183,19 @@ const robotStore = useRobotStore()
 const searchQuery = ref('')
 const showUserMenu = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
-const currentLocale = ref(getLocale())
+const langRef = ref<HTMLElement | null>(null)
+const showLangMenu = ref(false)
+const currentLocale = computed(() => (locale.value || 'zh') as 'zh' | 'en')
+
+const localeOptions = [
+  { code: 'zh', label: '简体中文' },
+  { code: 'en', label: 'English' },
+]
+
+const currentLocaleLabel = computed(() => {
+  const found = localeOptions.find((opt) => opt.code === currentLocale.value)
+  return found?.label ?? currentLocale.value.toUpperCase()
+})
 
 const showNotifPanel = ref(false)
 const notifRef = ref<HTMLElement | null>(null)
@@ -169,7 +209,13 @@ function typeIcon(type: string) {
 }
 
 function formatTime(d: string) {
-  return new Date(d).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  const localeStr = currentLocale.value === 'zh' ? 'zh-CN' : 'en-US'
+  return new Date(d).toLocaleString(localeStr, {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 async function loadNotifications() {
@@ -202,10 +248,15 @@ function toggleNotifPanel() {
   if (showNotifPanel.value) loadNotifications()
 }
 
-function toggleLocale() {
-  const next = currentLocale.value === 'zh' ? 'en' : 'zh'
-  setLocale(next as 'zh' | 'en')
-  currentLocale.value = next
+function toggleLangMenu() {
+  showLangMenu.value = !showLangMenu.value
+}
+
+function changeLocale(code: 'zh' | 'en') {
+  locale.value = code
+  localStorage.setItem('locale', code)
+  document.documentElement.lang = code
+  showLangMenu.value = false
 }
 
 const compareCount = computed(() => robotStore.compareList.length)
@@ -230,6 +281,9 @@ function handleClickOutside(e: MouseEvent) {
   if (notifRef.value && !notifRef.value.contains(e.target as Node)) {
     showNotifPanel.value = false
   }
+   if (langRef.value && !langRef.value.contains(e.target as Node)) {
+     showLangMenu.value = false
+   }
 }
 
 onMounted(() => {
