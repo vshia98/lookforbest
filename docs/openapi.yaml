@@ -1,0 +1,2847 @@
+openapi: 3.0.3
+info:
+  title: LookForBest Public API
+  version: 1.0.0
+  description: >
+    OpenAPI 3.0 specification generated from the current Spring Boot backend.
+    Focused on endpoints used by Flutter / uni-app (non-admin) clients.
+
+servers:
+  - url: https://api.example.com
+    description: Production server
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Auth
+  - name: User
+  - name: Robots
+  - name: Search
+  - name: Taxonomy
+  - name: Manufacturer
+  - name: Compare
+  - name: UGC
+  - name: Inquiry
+  - name: Membership
+  - name: Notification
+  - name: Chat
+  - name: PriceTracking
+  - name: File
+  - name: Ads
+  - name: Analytics
+  - name: Settings
+
+paths:
+  /api/v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponseWrapper'
+
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: User login with email or username
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponseWrapper'
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponseWrapper'
+
+  /api/v1/auth/oauth/login:
+    post:
+      tags: [Auth]
+      summary: OAuth login (Google / WeChat)
+      description: >
+        Google: send idToken; WeChat Web / Miniapp: send code from OAuth / wx.login().
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuthLoginRequest'
+      responses:
+        '200':
+          description: OAuth login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponseWrapper'
+
+  /api/v1/users/me:
+    get:
+      tags: [User]
+      summary: Get current user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWrapper'
+
+  /api/v1/users/me/favorites:
+    get:
+      tags: [User]
+      summary: Get favorite robots
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Favorite robots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedRobotSummaryWrapper'
+    post:
+      tags: [User]
+      summary: Add robot to favorites
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: robotId
+          schema:
+            type: integer
+          required: true
+          description: Robot ID
+      responses:
+        '200':
+          description: Favorite added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+    delete:
+      tags: [User]
+      summary: Remove robot from favorites
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: robotId
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Favorite removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/robots:
+    get:
+      tags: [Robots]
+      summary: List robots with filters
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: categoryId
+          schema:
+            type: integer
+        - in: query
+          name: manufacturerId
+          schema:
+            type: integer
+        - in: query
+          name: domainIds
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+        - in: query
+          name: payloadMin
+          schema:
+            type: number
+            format: double
+        - in: query
+          name: payloadMax
+          schema:
+            type: number
+            format: double
+        - in: query
+          name: reachMin
+          schema:
+            type: integer
+        - in: query
+          name: reachMax
+          schema:
+            type: integer
+        - in: query
+          name: dofMin
+          schema:
+            type: integer
+        - in: query
+          name: dofMax
+          schema:
+            type: integer
+        - in: query
+          name: has3dModel
+          schema:
+            type: boolean
+        - in: query
+          name: status
+          schema:
+            type: string
+            default: active
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: relevance
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Robot list (public or full, depending on user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedRobotSummaryWrapper'
+
+  /api/v1/robots/{id}:
+    get:
+      tags: [Robots]
+      summary: Get robot detail by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Robot detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotDetailWrapper'
+
+  /api/v1/robots/slug/{slug}:
+    get:
+      tags: [Robots]
+      summary: Get robot detail by slug
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Robot detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotDetailWrapper'
+
+  /api/v1/robots/{id}/similar:
+    get:
+      tags: [Robots]
+      summary: Get similar robots
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 6
+      responses:
+        '200':
+          description: Similar robots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSummaryListWrapper'
+
+  /api/v1/robots/{id}/recommend:
+    get:
+      tags: [Robots]
+      summary: Get AI-based recommended robots
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 6
+        - in: query
+          name: strategy
+          schema:
+            type: string
+            default: hybrid
+      responses:
+        '200':
+          description: Recommended robots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSummaryListWrapper'
+
+  /api/v1/robots/{id}/model:
+    get:
+      tags: [Robots]
+      summary: Get robot 3D model info
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Robot 3D model info (may be null)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotModelWrapper'
+
+  /api/v1/search:
+    get:
+      tags: [Search]
+      summary: Full-text search robots (Elasticsearch)
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: categoryId
+          schema:
+            type: integer
+        - in: query
+          name: manufacturerId
+          schema:
+            type: integer
+        - in: query
+          name: payloadMin
+          schema:
+            type: number
+            format: double
+        - in: query
+          name: payloadMax
+          schema:
+            type: number
+            format: double
+        - in: query
+          name: reachMin
+          schema:
+            type: integer
+        - in: query
+          name: reachMax
+          schema:
+            type: integer
+        - in: query
+          name: dofMin
+          schema:
+            type: integer
+        - in: query
+          name: dofMax
+          schema:
+            type: integer
+        - in: query
+          name: has3dModel
+          schema:
+            type: boolean
+        - in: query
+          name: status
+          schema:
+            type: string
+            default: active
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: relevance
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Search result (custom map)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMapWrapper'
+
+  /api/v1/search/suggest:
+    get:
+      tags: [Search]
+      summary: Search suggestions (autocomplete)
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringListWrapper'
+
+  /api/v1/search/hot:
+    get:
+      tags: [Search]
+      summary: Hot search keywords
+      responses:
+        '200':
+          description: Top hot keywords
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringListWrapper'
+
+  /api/v1/categories:
+    get:
+      tags: [Taxonomy]
+      summary: Get category tree
+      responses:
+        '200':
+          description: Category list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryListWrapper'
+
+  /api/v1/domains:
+    get:
+      tags: [Taxonomy]
+      summary: Get application domains
+      responses:
+        '200':
+          description: Domain list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainListWrapper'
+
+  /api/v1/manufacturers:
+    get:
+      tags: [Manufacturer]
+      summary: Get manufacturers
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Manufacturer list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedManufacturerWrapper'
+
+  /api/v1/manufacturers/{id}:
+    get:
+      tags: [Manufacturer]
+      summary: Get manufacturer detail
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Manufacturer detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManufacturerWrapper'
+
+  /api/v1/compare:
+    post:
+      tags: [Compare]
+      summary: Create compare session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompareRequest'
+      responses:
+        '200':
+          description: Compare session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompareResultWrapper'
+
+  /api/v1/compare/{sessionId}:
+    get:
+      tags: [Compare]
+      summary: Get compare result by sessionId
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Compare result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompareResultWrapper'
+
+  /api/v1/reviews:
+    get:
+      tags: [UGC]
+      summary: List reviews
+      parameters:
+        - in: query
+          name: robotId
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Review list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedReviewWrapper'
+    post:
+      tags: [UGC]
+      summary: Create review
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreateRequest'
+      responses:
+        '200':
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewWrapper'
+
+  /api/v1/reviews/{id}:
+    get:
+      tags: [UGC]
+      summary: Get review detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewWrapper'
+    delete:
+      tags: [UGC]
+      summary: Delete review
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/reviews/{id}/submit:
+    post:
+      tags: [UGC]
+      summary: Submit review for moderation
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/reviews/{id}/like:
+    post:
+      tags: [UGC]
+      summary: Toggle like review
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Like status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeStatusWrapper'
+
+  /api/v1/reviews/{id}/report:
+    post:
+      tags: [UGC]
+      summary: Report review
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Report submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/reviews/my:
+    get:
+      tags: [UGC]
+      summary: Get my reviews
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: My reviews
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedReviewWrapper'
+
+  /api/v1/case-studies:
+    get:
+      tags: [UGC]
+      summary: List case studies
+      parameters:
+        - in: query
+          name: industry
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Case study list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedCaseStudyWrapper'
+    post:
+      tags: [UGC]
+      summary: Create case study
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseStudyCreateRequest'
+      responses:
+        '200':
+          description: Case study created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseStudyWrapper'
+
+  /api/v1/case-studies/{id}:
+    get:
+      tags: [UGC]
+      summary: Get case study detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Case study detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseStudyWrapper'
+    delete:
+      tags: [UGC]
+      summary: Delete case study
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/case-studies/{id}/submit:
+    post:
+      tags: [UGC]
+      summary: Submit case study for moderation
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/case-studies/{id}/like:
+    post:
+      tags: [UGC]
+      summary: Toggle like case study
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Like status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeStatusWrapper'
+
+  /api/v1/case-studies/{id}/report:
+    post:
+      tags: [UGC]
+      summary: Report case study
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Report submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/robots/{robotId}/comments:
+    get:
+      tags: [UGC]
+      summary: List comments of a robot
+      parameters:
+        - in: path
+          name: robotId
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Comment list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedCommentWrapper'
+    post:
+      tags: [UGC]
+      summary: Create comment or reply
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: robotId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreateRequest'
+      responses:
+        '200':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentWrapper'
+
+  /api/v1/robots/{robotId}/comments/{commentId}:
+    put:
+      tags: [UGC]
+      summary: Update comment
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: robotId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdateRequest'
+      responses:
+        '200':
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentWrapper'
+    delete:
+      tags: [UGC]
+      summary: Delete comment
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: robotId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comment deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/inquiries:
+    post:
+      tags: [Inquiry]
+      summary: Create inquiry
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InquiryCreateRequest'
+      responses:
+        '200':
+          description: Inquiry created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InquiryWrapper'
+
+  /api/v1/inquiries/my:
+    get:
+      tags: [Inquiry]
+      summary: Get my inquiries
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: My inquiries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedInquiryWrapper'
+
+  /api/v1/inquiries/{id}:
+    get:
+      tags: [Inquiry]
+      summary: Get inquiry detail (owner or admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Inquiry detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InquiryWrapper'
+
+  /api/v1/membership/plans:
+    get:
+      tags: [Membership]
+      summary: Get membership plans (public)
+      responses:
+        '200':
+          description: Membership plans
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipPlanListWrapper'
+
+  /api/v1/membership/my:
+    get:
+      tags: [Membership]
+      summary: Get my membership info
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User membership info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMembershipWrapper'
+
+  /api/v1/membership/orders:
+    post:
+      tags: [Membership]
+      summary: Create membership order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderWrapper'
+    get:
+      tags: [Membership]
+      summary: Get my orders
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: My orders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListWrapper'
+
+  /api/v1/membership/orders/{orderNo}/simulate-pay:
+    post:
+      tags: [Membership]
+      summary: Simulate payment (demo only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: orderNo
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order after simulated pay
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderWrapper'
+
+  /api/v1/notifications:
+    get:
+      tags: [Notification]
+      summary: Get my notifications
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedNotificationWrapper'
+
+  /api/v1/notifications/unread-count:
+    get:
+      tags: [Notification]
+      summary: Get unread notification count
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Unread count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCountWrapper'
+
+  /api/v1/notifications/{id}/read:
+    patch:
+      tags: [Notification]
+      summary: Mark notification as read
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/notifications/read-all:
+    patch:
+      tags: [Notification]
+      summary: Mark all notifications as read
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/chat/message:
+    post:
+      tags: [Chat]
+      summary: Send message to AI assistant (SSE stream)
+      description: >
+        Returns Server-Sent Events stream. Client should set Accept: text/event-stream
+        and handle streaming responses.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionKey:
+                  type: string
+                  description: Optional session key, if empty server generates one
+                message:
+                  type: string
+      responses:
+        '200':
+          description: SSE stream of chat messages
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /api/v1/chat/sessions/{sessionKey}/history:
+    get:
+      tags: [Chat]
+      summary: Get chat history for a session
+      parameters:
+        - in: path
+          name: sessionKey
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatHistoryWrapper'
+
+  /api/v1/chat/sessions/{sessionKey}:
+    delete:
+      tags: [Chat]
+      summary: Clear chat session
+      parameters:
+        - in: path
+          name: sessionKey
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session cleared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMapWrapper'
+
+  /api/v1/robots/{id}/price-history:
+    get:
+      tags: [PriceTracking]
+      summary: Get price history for a robot
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Price history entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceHistoryListWrapper'
+
+  /api/v1/robots/{id}/price-alert:
+    post:
+      tags: [PriceTracking]
+      summary: Set price alert
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetPrice:
+                  type: number
+                  format: double
+      responses:
+        '200':
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMapWrapper'
+    delete:
+      tags: [PriceTracking]
+      summary: Cancel price alert
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Alert cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericMapWrapper'
+
+  /api/v1/user/price-alerts:
+    get:
+      tags: [PriceTracking]
+      summary: Get my price alerts
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Price alerts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceAlertListWrapper'
+
+  /api/v1/files/upload:
+    post:
+      tags: [File]
+      summary: Upload file to MinIO
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: >
+                    jpg/png/webp/gif images, mp4 videos, glb/gltf 3D models. Max 50MB.
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResultWrapper'
+
+  /api/v1/ads:
+    get:
+      tags: [Ads]
+      summary: Get active ads for a position
+      parameters:
+        - in: query
+          name: position
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ad list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdPlacementListWrapper'
+
+  /api/v1/ads/{id}/click:
+    post:
+      tags: [Ads]
+      summary: Record ad click
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Click recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/analytics/track:
+    post:
+      tags: [Analytics]
+      summary: Track user action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackActionRequest'
+      responses:
+        '200':
+          description: Tracked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponseWrapper'
+
+  /api/v1/settings:
+    get:
+      tags: [Settings]
+      summary: Get site-wide settings
+      responses:
+        '200':
+          description: Map of settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsMapWrapper'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          nullable: true
+        timestamp:
+          type: integer
+          format: int64
+
+    AuthTokenResponseWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/AuthTokenResponse'
+
+    UserWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/User'
+
+    VoidResponseWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              nullable: true
+
+    PagedRobotSummaryWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PagedRobotSummary'
+
+    RobotDetailWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/RobotDetail'
+
+    RobotModelWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/RobotModel'
+
+    RobotSummaryListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/RobotSummary'
+
+    StringListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: string
+
+    CategoryListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Category'
+
+    DomainListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Domain'
+
+    PagedManufacturerWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PagedManufacturer'
+
+    ManufacturerWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Manufacturer'
+
+    CompareResultWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/CompareResult'
+
+    PagedReviewWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PagedReview'
+
+    ReviewWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Review'
+
+    PagedCaseStudyWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PagedCaseStudy'
+
+    CaseStudyWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/CaseStudy'
+
+    PagedCommentWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PagedComment'
+
+    CommentWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Comment'
+
+    PagedInquiryWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PagedInquiry'
+
+    InquiryWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Inquiry'
+
+    UserMembershipWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/UserMembership'
+
+    MembershipPlanListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/MembershipPlan'
+
+    OrderWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Order'
+
+    OrderListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Order'
+
+    PagedNotificationWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PagedNotification'
+
+    UnreadCountWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  format: int64
+
+    LikeStatusWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                liked:
+                  type: boolean
+
+    ChatHistoryWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  role:
+                    type: string
+                  content:
+                    type: string
+
+    PriceHistoryListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/PriceHistory'
+
+    PriceAlertListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/PriceAlert'
+
+    FileUploadResultWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                url:
+                  type: string
+
+    AdPlacementListWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/AdPlacement'
+
+    GenericMapWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              additionalProperties: true
+
+    SettingsMapWrapper:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              additionalProperties:
+                type: string
+
+    AuthTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        username:
+          type: string
+        displayName:
+          type: string
+        avatarUrl:
+          type: string
+        role:
+          type: string
+        company:
+          type: string
+        jobTitle:
+          type: string
+        country:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [usernameOrEmail, password]
+      properties:
+        usernameOrEmail:
+          type: string
+        password:
+          type: string
+
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        username:
+          type: string
+        displayName:
+          type: string
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    OAuthLoginRequest:
+      type: object
+      required: [provider, code]
+      properties:
+        provider:
+          type: string
+          description: google | wechat_web | wechat_miniapp
+        code:
+          type: string
+
+    RobotSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        nameEn:
+          type: string
+        subtitle:
+          type: string
+        subtitleEn:
+          type: string
+        description:
+          type: string
+        descriptionEn:
+          type: string
+        modelNumber:
+          type: string
+        slug:
+          type: string
+        coverImageUrl:
+          type: string
+        manufacturer:
+          $ref: '#/components/schemas/ManufacturerSummary'
+        category:
+          $ref: '#/components/schemas/CategorySummary'
+        payloadKg:
+          type: number
+          format: double
+        reachMm:
+          type: integer
+        dof:
+          type: integer
+        repeatabilityMm:
+          type: number
+          format: double
+        has3dModel:
+          type: boolean
+        priceRange:
+          type: string
+        status:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        viewCount:
+          type: integer
+          format: int64
+        favoriteCount:
+          type: integer
+
+    ManufacturerSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameEn:
+          type: string
+        logoUrl:
+          type: string
+        country:
+          type: string
+        countryEn:
+          type: string
+
+    CategorySummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameEn:
+          type: string
+        slug:
+          type: string
+
+    RobotDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameEn:
+          type: string
+        subtitle:
+          type: string
+        subtitleEn:
+          type: string
+        modelNumber:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        descriptionEn:
+          type: string
+        introduction:
+          type: string
+        introductionEn:
+          type: string
+        applicationScenarios:
+          type: string
+        applicationScenariosEn:
+          type: string
+        advantages:
+          type: string
+        advantagesEn:
+          type: string
+        releaseYear:
+          type: integer
+        status:
+          type: string
+        manufacturer:
+          $ref: '#/components/schemas/Manufacturer'
+        category:
+          $ref: '#/components/schemas/Category'
+        applicationDomains:
+          type: array
+          items:
+            $ref: '#/components/schemas/Domain'
+        specs:
+          $ref: '#/components/schemas/RobotSpecs'
+        extraSpecs:
+          type: object
+          additionalProperties: true
+        priceRange:
+          type: string
+        priceUsdFrom:
+          type: number
+          format: double
+        coverImageUrl:
+          type: string
+        contentImages:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        videoUrls:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/RobotTag'
+        isOpenSource:
+          type: string
+        listedDate:
+          type: string
+          format: date
+        model3dUrl:
+          type: string
+        has3dModel:
+          type: boolean
+        hasVideo:
+          type: boolean
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/RobotImage'
+        videos:
+          type: array
+          items:
+            $ref: '#/components/schemas/RobotVideo'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/RobotDocument'
+        viewCount:
+          type: integer
+          format: int64
+        favoriteCount:
+          type: integer
+        isFavorited:
+          type: boolean
+        isVerified:
+          type: boolean
+        similarRobots:
+          type: array
+          items:
+            $ref: '#/components/schemas/RobotSummary'
+
+    RobotSpecs:
+      type: object
+      properties:
+        payloadKg:
+          type: number
+          format: double
+        reachMm:
+          type: integer
+        dof:
+          type: integer
+        repeatabilityMm:
+          type: number
+          format: double
+        maxSpeedDegS:
+          type: number
+          format: double
+        weightKg:
+          type: number
+          format: double
+        ipRating:
+          type: string
+        mounting:
+          type: string
+        maxSpeedMs:
+          type: number
+          format: double
+        maxLoadKg:
+          type: number
+          format: double
+        batteryLifeH:
+          type: number
+          format: double
+        navigationType:
+          type: string
+        heightMm:
+          type: integer
+        walkingSpeedMs:
+          type: number
+          format: double
+
+    RobotImage:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+        thumbnailUrl:
+          type: string
+        imageType:
+          type: string
+        sortOrder:
+          type: integer
+
+    RobotVideo:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        url:
+          type: string
+        thumbnailUrl:
+          type: string
+        durationS:
+          type: integer
+
+    RobotDocument:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        url:
+          type: string
+        docType:
+          type: string
+        language:
+          type: string
+
+    RobotTag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        nameEn:
+          type: string
+
+    RobotModel:
+      type: object
+      properties:
+        robotId:
+          type: integer
+        modelUrl:
+          type: string
+        posterUrl:
+          type: string
+        arUrl:
+          type: string
+        title:
+          type: string
+        annotations:
+          type: string
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        parentId:
+          type: integer
+        name:
+          type: string
+        nameEn:
+          type: string
+        slug:
+          type: string
+        icon:
+          type: string
+        description:
+          type: string
+        sortOrder:
+          type: integer
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    Domain:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameEn:
+          type: string
+        slug:
+          type: string
+
+    Manufacturer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameEn:
+          type: string
+        country:
+          type: string
+        countryEn:
+          type: string
+        countryCode:
+          type: string
+        logoUrl:
+          type: string
+        websiteUrl:
+          type: string
+        foundedYear:
+          type: integer
+        description:
+          type: string
+        descriptionEn:
+          type: string
+        headquarters:
+          type: string
+        isVerified:
+          type: boolean
+
+    PagedRobotSummary:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/RobotSummary'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+
+    PagedManufacturer:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Manufacturer'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+
+    CompareRequest:
+      type: object
+      required: [robotIds]
+      properties:
+        robotIds:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 4
+
+    CompareResult:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        robots:
+          type: array
+          items:
+            $ref: '#/components/schemas/RobotSummary'
+        comparison:
+          type: object
+          properties:
+            dimensions:
+              type: array
+              items:
+                type: string
+            winner:
+              type: object
+              additionalProperties:
+                type: integer
+                format: int64
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        authorName:
+          type: string
+        authorAvatar:
+          type: string
+        robotId:
+          type: integer
+        robotName:
+          type: string
+        robotSlug:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        pros:
+          type: string
+        cons:
+          type: string
+        rating:
+          type: integer
+        images:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+        rejectReason:
+          type: string
+        viewCount:
+          type: integer
+          format: int64
+        likeCount:
+          type: integer
+        liked:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ReviewCreateRequest:
+      type: object
+      required: [robotId, title, content, rating]
+      properties:
+        robotId:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        pros:
+          type: string
+        cons:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        images:
+          type: array
+          items:
+            type: string
+
+    PagedReview:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+
+    CaseStudy:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        authorName:
+          type: string
+        authorAvatar:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        robotIds:
+          type: array
+          items:
+            type: integer
+        industry:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+        rejectReason:
+          type: string
+        viewCount:
+          type: integer
+          format: int64
+        likeCount:
+          type: integer
+        liked:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CaseStudyCreateRequest:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        robotIds:
+          type: array
+          items:
+            type: integer
+        industry:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    PagedCaseStudy:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CaseStudy'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        robotId:
+          type: integer
+        parentId:
+          type: integer
+        content:
+          type: string
+        rating:
+          type: integer
+        likeCount:
+          type: integer
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        author:
+          $ref: '#/components/schemas/CommentAuthor'
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+
+    CommentAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        avatarUrl:
+          type: string
+
+    CommentCreateRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        parentId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+
+    CommentUpdateRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+
+    PagedComment:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+
+    Inquiry:
+      type: object
+      properties:
+        id:
+          type: integer
+        robotId:
+          type: integer
+        robotName:
+          type: string
+        robotSlug:
+          type: string
+        manufacturerId:
+          type: integer
+        manufacturerName:
+          type: string
+        message:
+          type: string
+        contactName:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        contactCompany:
+          type: string
+        status:
+          type: string
+        replyContent:
+          type: string
+        repliedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    InquiryCreateRequest:
+      type: object
+      required: [robotId, message, contactEmail]
+      properties:
+        robotId:
+          type: integer
+        message:
+          type: string
+        contactName:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        contactPhone:
+          type: string
+        contactCompany:
+          type: string
+
+    PagedInquiry:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Inquiry'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+
+    MembershipPlan:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameEn:
+          type: string
+        description:
+          type: string
+        priceCny:
+          type: number
+          format: double
+        priceUsd:
+          type: number
+          format: double
+        durationDays:
+          type: integer
+        features:
+          type: array
+          items:
+            type: string
+        maxCompareRobots:
+          type: integer
+        maxExportsPerDay:
+          type: integer
+        apiAccess:
+          type: boolean
+        isActive:
+          type: boolean
+        sortOrder:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    UserMembership:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        plan:
+          $ref: '#/components/schemas/MembershipPlan'
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+        daysRemaining:
+          type: integer
+          description: -1 means permanent
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderNo:
+          type: string
+        userId:
+          type: integer
+        planId:
+          type: integer
+        planName:
+          type: string
+        amountCny:
+          type: number
+          format: double
+        paymentMethod:
+          type: string
+        status:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+        thirdPartyOrderId:
+          type: string
+        remark:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateOrderRequest:
+      type: object
+      required: [planId, paymentMethod]
+      properties:
+        planId:
+          type: integer
+        paymentMethod:
+          type: string
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        isRead:
+          type: boolean
+        relatedId:
+          type: integer
+        relatedType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    PagedNotification:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+
+    TrackActionRequest:
+      type: object
+      required: [sessionId, actionType, targetType]
+      properties:
+        sessionId:
+          type: string
+        actionType:
+          type: string
+        targetType:
+          type: string
+        targetId:
+          type: integer
+        targetSlug:
+          type: string
+        extraData:
+          type: object
+          additionalProperties: true
+
+    PriceHistory:
+      type: object
+      properties:
+        date:
+          type: string
+        price:
+          type: number
+          format: double
+
+    PriceAlert:
+      type: object
+      properties:
+        id:
+          type: integer
+        robotId:
+          type: integer
+        userId:
+          type: integer
+        targetPrice:
+          type: number
+          format: double
+        active:
+          type: boolean
+
+    AdPlacement:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        imageUrl:
+          type: string
+        linkUrl:
+          type: string
+        position:
+          type: string
+        adType:
+          type: string
+        priority:
+          type: integer
+        manufacturerId:
+          type: integer
+
